@@ -51,7 +51,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
  * of paragraphs (and other block-level content) arranged in rows and columns.</p>
  */
 @SuppressWarnings("WeakerAccess")
-public class XWPFTable implements IBodyElement, ISDTContents {
+public class XWPFTable implements IBodyElement, ISDTContentsBlock {
 
     public static final String REGEX_PERCENTAGE = "[0-9]+(\\.[0-9]+)?%";
     public static final String DEFAULT_PERCENTAGE_WIDTH = "100%";
@@ -165,7 +165,12 @@ public class XWPFTable implements IBodyElement, ISDTContents {
             createEmptyTable(table);
         }
 
-        for (CTRow row : table.getTrList()) {
+        this.text = fetchTblText();
+    }
+
+    public StringBuilder fetchTblText() {
+        StringBuilder tblText = new StringBuilder();
+        for (CTRow row : this.ctTbl.getTrList()) {
             StringBuilder rowText = new StringBuilder();
             XWPFTableRow tabRow = new XWPFTableRow(row, this);
             tableRows.add(tabRow);
@@ -179,10 +184,11 @@ public class XWPFTable implements IBodyElement, ISDTContents {
                 }
             }
             if (rowText.length() > 0) {
-                this.text.append(rowText);
-                this.text.append('\n');
+                tblText.append(rowText);
+                tblText.append('\n');
             }
         }
+        return tblText;
     }
 
     private void createEmptyTable(CTTbl table) {

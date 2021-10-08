@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.util.Internal;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
@@ -42,12 +43,14 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTc;
  * {@link XWPFFootnotes} and end notes are managed by the Endnotes part {@link XWPFEndnotes}.</p>
  * @since 4.0.0
  */
-public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParagraph>, IBody {
+public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParagraph>, IBody{
 
     private List<XWPFParagraph> paragraphs = new ArrayList<>();
     private List<XWPFTable> tables = new ArrayList<>();
     private List<XWPFPictureData> pictures = new ArrayList<>();
     private List<IBodyElement> bodyElements = new ArrayList<>();
+    private List<XWPFSDTBlock> sdtBlocks = new ArrayList<>();
+
     protected CTFtnEdn ctFtnEdn;
     protected XWPFAbstractFootnotesEndnotes footnotes;
     protected XWPFDocument document;
@@ -87,7 +90,7 @@ public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParag
                 bodyElements.add(t);
                 tables.add(t);
             } else if (o instanceof CTSdtBlock) {
-                XWPFSDT c = new XWPFSDT((CTSdtBlock) o, this);
+                XWPFSDTBlock c = new XWPFSDTBlock((CTSdtBlock) o, this);
                 bodyElements.add(c);
             }
     
@@ -510,6 +513,17 @@ public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParag
         bodyElements.add(table);
         tables.add(table);
         return table;
+    }
+
+    /**
+     * Unimplemented method
+     *
+     * @param pos
+     * @return
+     */
+    @Override
+    public boolean removeBodyElement(int pos) {
+        throw new UnsupportedOperationException();
     }
 
 }

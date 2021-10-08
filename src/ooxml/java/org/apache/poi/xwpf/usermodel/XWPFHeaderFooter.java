@@ -32,11 +32,7 @@ import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.Internal;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHdrFtr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTc;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 /**
  * Parent of XWPF headers and footers
@@ -46,6 +42,7 @@ public abstract class XWPFHeaderFooter extends POIXMLDocumentPart implements IBo
     List<XWPFTable> tables = new ArrayList<>();
     List<XWPFPictureData> pictures = new ArrayList<>();
     List<IBodyElement> bodyElements = new ArrayList<>();
+    List<XWPFSDTBlock> sdtBlocks = new ArrayList<>();
 
     CTHdrFtr headerFooter;
     XWPFDocument document;
@@ -108,6 +105,79 @@ public abstract class XWPFHeaderFooter extends POIXMLDocumentPart implements IBo
         return Collections.unmodifiableList(paragraphs);
     }
 
+    @Override
+    public List<XWPFSDTBlock> getSdtBlocks() {
+        return Collections.unmodifiableList(sdtBlocks);
+    }
+
+    @Override
+    public XWPFSDTBlock getSdtBlock(CTSdtBlock ctSdtBlock) {
+        for (int i = 0; i < sdtBlocks.size(); i++) {
+            if (getSdtBlocks().get(i).getCtSdtBlock() == ctSdtBlock) {
+                return getSdtBlocks().get(i);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public XWPFSDTBlock insertNewSdtBlock(XmlCursor cursor) {
+        if (isCursorInBody(cursor)) {
+            String uri = CTSdtBlock.type.getName().getNamespaceURI();
+            String localPart = "sdt";
+            cursor.beginElement(localPart, uri);
+            cursor.toParent();
+            CTSdtBlock sdt = (CTSdtBlock) cursor.getObject();
+            XWPFSDTBlock newSdtBlock = new XWPFSDTBlock(sdt, this);
+            XmlObject o = null;
+            while (!(o instanceof CTSdtBlock) && (cursor.toPrevSibling())) {
+                o = cursor.getObject();
+            }
+            if (!(o instanceof CTSdtBlock)) {
+                sdtBlocks.add(0, newSdtBlock);
+            } else {
+                int pos = sdtBlocks.indexOf(getSdtBlock((CTSdtBlock) o)) + 1;
+                sdtBlocks.add(pos, newSdtBlock);
+            }
+            int i = 0;
+            XmlCursor sdtCursor = sdt.newCursor();
+            try {
+                cursor.toCursor(sdtCursor);
+                while (cursor.toPrevSibling()) {
+                    o = cursor.getObject();
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
+                        i++;
+                    }
+                }
+                bodyElements.add(i, newSdtBlock);
+                cursor.toCursor(sdtCursor);
+                cursor.toEndToken();
+                return newSdtBlock;
+            } finally {
+                sdtCursor.dispose();
+                cursor.dispose();
+            }
+        }
+        return null;
+    }
+
+    public void setSDTBlock(int pos, XWPFSDTBlock sdt) {
+        sdtBlocks.set(pos, sdt);
+        headerFooter.setSdtArray(pos, sdt.getCtSdtBlock());
+    }
+
+    /**
+     * verifies that cursor is on the right position
+     *
+     * @param cursor
+     */
+    private boolean isCursorInBody(XmlCursor cursor) {
+        XmlCursor verify = cursor.newCursor();
+        verify.toParent();
+        boolean result = (verify.getObject() == this.headerFooter);
+        verify.dispose();
+        return result;
+    }
 
     /**
      * Return the table(s) that holds the text
@@ -148,8 +218,8 @@ public abstract class XWPFHeaderFooter extends POIXMLDocumentPart implements IBo
         }
 
         for (IBodyElement bodyElement : getBodyElements()) {
-            if (bodyElement instanceof XWPFSDT) {
-                t.append(((XWPFSDT) bodyElement).getContent().getText() + '\n');
+            if (bodyElement instanceof XWPFSDTBlock) {
+                t.append(((XWPFSDTBlock) bodyElement).getContent().getText() + '\n');
             }
         }
         return t.toString();
@@ -281,6 +351,41 @@ public abstract class XWPFHeaderFooter extends POIXMLDocumentPart implements IBo
             /* Part already existed, get relation id and return it */
             return getRelationId(xwpfPicData);
         }
+    }
+
+    /**
+     * Remove a specific SDT Block from this header / footer
+     *
+     * @param sdt - {@link XWPFSDTBlock} object to remove
+     */
+    public void removeSdtBlock(XWPFSDTBlock sdt) {
+        if (sdtBlocks.contains(sdt)) {
+            CTSdtBlock ctSdtBlock = sdt.getCtSdtBlock();
+            XmlCursor c = ctSdtBlock.newCursor();
+            c.removeXml();
+            c.dispose();
+            sdtBlocks.remove(ctSdtBlock);
+            bodyElements.remove(ctSdtBlock);
+        }
+    }
+
+    @Override
+    public boolean removeBodyElement(int pos) {
+        if (pos >= 0 && pos < bodyElements.size()) {
+            IBodyElement bodyElement = bodyElements.get(pos);
+            BodyElementType type = bodyElement.getElementType();
+            if (type == BodyElementType.TABLE) {
+                removeTable((XWPFTable) bodyElement);
+            }
+            if (type == BodyElementType.PARAGRAPH) {
+                removeParagraph((XWPFParagraph) bodyElement);
+            }
+            if (type == BodyElementType.CONTENTCONTROL) {
+                removeSdtBlock((XWPFSDTBlock) bodyElement);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**

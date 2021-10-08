@@ -17,16 +17,16 @@
 
 package org.apache.poi.xwpf.usermodel;
 
-import static org.apache.poi.POITestCase.assertContains;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.poi.xwpf.XWPFTestDataSamples;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.xwpf.XWPFTestDataSamples;
-import org.junit.Test;
+import static org.apache.poi.POITestCase.assertContains;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public final class TestXWPFSDT {
 
@@ -146,8 +146,8 @@ public final class TestXWPFSDT {
         try (XWPFDocument doc =XWPFTestDataSamples.openSampleDocument("Bug60341.docx")) {
             List<XWPFAbstractSDT> sdts = extractAllSDTs(doc);
             assertEquals(1, sdts.size());
-            assertEquals("", sdts.get(0).getTag());
-            assertEquals("", sdts.get(0).getTitle());
+            assertEquals(null, sdts.get(0).getSdtPr().getTag());
+            assertEquals(null, sdts.get(0).getSdtPr().getTitle());
         }
     }
 
@@ -160,8 +160,8 @@ public final class TestXWPFSDT {
         try (XWPFDocument doc =XWPFTestDataSamples.openSampleDocument("Bug62859.docx")) {
             List<XWPFAbstractSDT> sdts = extractAllSDTs(doc);
             assertEquals(1, sdts.size());
-            assertEquals("", sdts.get(0).getTag());
-            assertEquals("", sdts.get(0).getTitle());
+            assertEquals(null, sdts.get(0).getSdtPr().getTag());
+            assertEquals(null, sdts.get(0).getSdtPr().getTitle());
         }
     }
 
@@ -191,15 +191,15 @@ public final class TestXWPFSDT {
     private List<XWPFAbstractSDT> extractSDTsFromBodyElements(List<IBodyElement> elements) {
         List<XWPFAbstractSDT> sdts = new ArrayList<>();
         for (IBodyElement e : elements) {
-            if (e instanceof XWPFSDT) {
-                XWPFSDT sdt = (XWPFSDT) e;
+            if (e instanceof XWPFSDTBlock) {
+                XWPFSDTBlock sdt = (XWPFSDTBlock) e;
                 sdts.add(sdt);
             } else if (e instanceof XWPFParagraph) {
 
                 XWPFParagraph p = (XWPFParagraph) e;
                 for (IRunElement e2 : p.getIRuns()) {
-                    if (e2 instanceof XWPFSDT) {
-                        XWPFSDT sdt = (XWPFSDT) e2;
+                    if (e2 instanceof XWPFSDTRun) {
+                        XWPFSDTRun sdt = (XWPFSDTRun) e2;
                         sdts.add(sdt);
                     }
                 }

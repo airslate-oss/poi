@@ -21,6 +21,7 @@ import static org.apache.poi.ooxml.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -115,7 +116,7 @@ public class XWPFHeader extends XWPFHeaderFooter {
                     bodyElements.add(t);
                 }
                 if (o instanceof CTSdtBlock) {
-                    XWPFSDT c = new XWPFSDT((CTSdtBlock) o, this);
+                    XWPFSDTBlock c = new XWPFSDTBlock((CTSdtBlock) o, this);
                     bodyElements.add(c);
                 }
             }

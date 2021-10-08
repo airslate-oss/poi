@@ -108,7 +108,7 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
     protected List<XWPFHyperlink> hyperlinks = new ArrayList<>();
     protected List<XWPFParagraph> paragraphs = new ArrayList<>();
     protected List<XWPFTable> tables = new ArrayList<>();
-    protected List<XWPFSDT> contentControls = new ArrayList<>();
+    protected List<XWPFSDTBlock> contentControls = new ArrayList<>();
     protected List<IBodyElement> bodyElements = new ArrayList<>();
     protected List<XWPFPictureData> pictures = new ArrayList<>();
     protected Map<Long, List<XWPFPictureData>> packagePictures = new HashMap<>();
@@ -201,7 +201,7 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
                             bodyElements.add(t);
                             tables.add(t);
                         } else if (bodyObj instanceof CTSdtBlock) {
-                            XWPFSDT c = new XWPFSDT((CTSdtBlock) bodyObj, this);
+                            XWPFSDTBlock c = new XWPFSDTBlock((CTSdtBlock) bodyObj, this);
                             bodyElements.add(c);
                             contentControls.add(c);
                         }
@@ -352,6 +352,14 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
     @Override
     public List<XWPFTable> getTables() {
         return Collections.unmodifiableList(tables);
+    }
+
+    /**
+     * @see org.apache.poi.xwpf.usermodel.IBody#getSdtBlocks()
+     */
+    @Override
+    public List<XWPFSDTBlock> getSdtBlocks() {
+        return Collections.unmodifiableList(contentControls);
     }
 
     /**
@@ -645,6 +653,18 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
     }
 
     /**
+     * get with the position of a table in the bodyelement array list
+     * the position of this SDT in the contentControls array list
+     *
+     * @param pos position of the SDT in the bodyelement array list
+     * @return if there is a table at the position in the bodyelement array list,
+     * else it will return null.
+     */
+    public int getSDTPos(int pos) {
+        return getBodyElementSpecificPos(pos, contentControls);
+    }
+
+    /**
      * Add a new paragraph at position of the cursor. The cursor must be on the
      * {@link org.apache.xmlbeans.XmlCursor.TokenType#START} tag of an subelement
      * of the documents body. When this method is done, the cursor passed as
@@ -709,7 +729,7 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
                 cursor.toCursor(newParaPos);
                 while (cursor.toPrevSibling()) {
                     o = cursor.getObject();
-                    if (o instanceof CTP || o instanceof CTTbl) {
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
                         i++;
                     }
                 }
@@ -749,7 +769,7 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
                 cursor.toCursor(tableCursor);
                 while (cursor.toPrevSibling()) {
                     o = cursor.getObject();
-                    if (o instanceof CTP || o instanceof CTTbl) {
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
                         i++;
                     }
                 }
@@ -759,6 +779,53 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
                 return newT;
             } finally {
                 tableCursor.dispose();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find the comments for code in the method:
+     * {@link org.apache.poi.xwpf.usermodel.XWPFDocument#insertNewParagraph(org.apache.xmlbeans.XmlCursor)}
+     * @param cursor
+     * @return
+     */
+    @Override
+    public XWPFSDTBlock insertNewSdtBlock(XmlCursor cursor) {
+        if (isCursorInBody(cursor)) {
+            String uri = CTSdtBlock.type.getName().getNamespaceURI();
+            String localPart = "sdt";
+            cursor.beginElement(localPart, uri);
+            cursor.toParent();
+            CTSdtBlock sdt = (CTSdtBlock) cursor.getObject();
+            XWPFSDTBlock newSdtBlock = new XWPFSDTBlock(sdt, this);
+            XmlObject o = null;
+            while (!(o instanceof CTSdtBlock) && (cursor.toPrevSibling())) {
+                o = cursor.getObject();
+            }
+            if (!(o instanceof CTSdtBlock)) {
+                contentControls.add(0, newSdtBlock);
+            } else {
+                int pos = contentControls.indexOf(getSdtBlock((CTSdtBlock) o)) + 1;
+                contentControls.add(pos, newSdtBlock);
+            }
+            int i = 0;
+            XmlCursor sdtCursor = sdt.newCursor();
+            try {
+                cursor.toCursor(sdtCursor);
+                while (cursor.toPrevSibling()) {
+                    o = cursor.getObject();
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
+                        i++;
+                    }
+                }
+                bodyElements.add(i, newSdtBlock);
+                cursor.toCursor(sdtCursor);
+                cursor.toEndToken();
+                return newSdtBlock;
+            } finally {
+                sdtCursor.dispose();
+                cursor.dispose();
             }
         }
         return null;
@@ -855,6 +922,13 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
         return p;
     }
 
+    public XWPFSDTBlock createSdt() {
+        XWPFSDTBlock sdt = new XWPFSDTBlock(ctDocument.getBody().addNewSdt(), this);
+        bodyElements.add(sdt);
+        contentControls.add(sdt);
+        return sdt;
+    }
+
     /**
      * Creates an empty numbering if one does not already exist and sets the numbering member
      *
@@ -946,6 +1020,7 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
      * @param pos
      * @return true if removing was successfully, else return false
      */
+    @Override
     public boolean removeBodyElement(int pos) {
         if (pos >= 0 && pos < bodyElements.size()) {
             BodyElementType type = bodyElements.get(pos).getElementType();
@@ -958,6 +1033,11 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
                 int paraPos = getParagraphPos(pos);
                 paragraphs.remove(paraPos);
                 ctDocument.getBody().removeP(paraPos);
+            }
+            if (type == BodyElementType.CONTENTCONTROL) {
+                int sdtPos = getSDTPos(pos);
+                contentControls.remove(sdtPos);
+                ctDocument.getBody().removeSdt(sdtPos);
             }
             bodyElements.remove(pos);
             return true;
@@ -978,6 +1058,11 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
          * incoming paragraph belongs to this document or if not, XML was
          * copied properly (namespace-abbreviations, etc.)
          */
+    }
+
+    public void setSDTBlock(int pos, XWPFSDTBlock sdt) {
+        contentControls.set(pos, sdt);
+        ctDocument.getBody().setSdtArray(pos, sdt.getCtSdtBlock());
     }
 
     /**
@@ -1586,6 +1671,23 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
         for (int i = 0; i < tables.size(); i++) {
             if (getTables().get(i).getCTTbl() == ctTbl) {
                 return getTables().get(i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * get an SDT Block by its CtSdtBlock-Object
+     *
+     * @param ctSdtBlock
+     * @return a table by its CTTbl-Object or null
+     * @see org.apache.poi.xwpf.usermodel.IBody#getTable(org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl)
+     */
+    @Override
+    public XWPFSDTBlock getSdtBlock(CTSdtBlock ctSdtBlock) {
+        for (int i = 0; i < contentControls.size(); i++) {
+            if (getSdtBlocks().get(i).getCtSdtBlock() == ctSdtBlock) {
+                return getSdtBlocks().get(i);
             }
         }
         return null;

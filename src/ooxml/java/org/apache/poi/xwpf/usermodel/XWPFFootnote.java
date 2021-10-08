@@ -17,9 +17,13 @@
 package org.apache.poi.xwpf.usermodel;
 
 import org.apache.poi.util.Internal;
+import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFtnEdn;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFtnEdnRef;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtBlock;
+
+import java.util.List;
 
 /**
  * Represents a bottom-of-the-page footnote.
@@ -82,5 +86,20 @@ public class XWPFFootnote extends XWPFAbstractFootnoteEndnote {
             ctr.addNewFootnoteRef();
         }
         
+    }
+
+    @Override
+    public List<XWPFSDTBlock> getSdtBlocks() {
+        return null;
+    }
+
+    @Override
+    public XWPFSDTBlock getSdtBlock(CTSdtBlock ctSdtBlock) {
+        return null;
+    }
+
+    @Override
+    public XWPFSDTBlock insertNewSdtBlock(XmlCursor cursor) {
+        return null;
     }
 }

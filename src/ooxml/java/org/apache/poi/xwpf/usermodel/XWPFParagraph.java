@@ -28,6 +28,7 @@ import org.apache.poi.wp.usermodel.Paragraph;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
+import org.apache.poi.ss.formula.functions.T;
 
 /**
  * <p>A Paragraph within a Document, Table, Header etc.</p>
@@ -36,7 +37,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
  * actual text (possibly along with more styling) is held on
  * the child {@link XWPFRun}s.</p>
  */
-public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Paragraph {
+public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContentsBlock, Paragraph {
     private final CTP paragraph;
     protected IBody part;
     /**
@@ -45,6 +46,7 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
     protected XWPFDocument document;
     protected List<XWPFRun> runs;
     protected List<IRunElement> iruns;
+    protected List<XWPFSDTRun> sdtRuns;
 
     private StringBuilder footnoteText = new StringBuilder(64);
 
@@ -61,6 +63,7 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
         // Build up the character runs
         runs = new ArrayList<>();
         iruns = new ArrayList<>();
+        sdtRuns = new ArrayList<>();
         buildRunsInOrderFromXml(paragraph);
 
         // Look for bits associated with the runs
@@ -132,12 +135,9 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
                     iruns.add(fr);
                 }
             }
-            if (o instanceof CTSdtBlock) {
-                XWPFSDT cc = new XWPFSDT((CTSdtBlock) o, part);
-                iruns.add(cc);
-            }
             if (o instanceof CTSdtRun) {
-                XWPFSDT cc = new XWPFSDT((CTSdtRun) o, part);
+                XWPFSDTRun cc = new XWPFSDTRun((CTSdtRun) o, this);
+                sdtRuns.add(cc);
                 iruns.add(cc);
             }
             if (o instanceof CTRunTrackChange) {
@@ -180,6 +180,10 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
         return Collections.unmodifiableList(iruns);
     }
 
+    public List<XWPFSDTRun> getSDTRuns() {
+        return Collections.unmodifiableList(sdtRuns);
+    }
+
     public boolean isEmpty() {
         return !paragraph.getDomNode().hasChildNodes();
     }
@@ -202,8 +206,8 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
                 if (xRun.getCTR().getDelTextArray().length == 0) {
                     out.append(xRun);
                 }
-            } else if (run instanceof XWPFSDT) {
-                out.append(((XWPFSDT) run).getContent().getText());
+            } else if (run instanceof XWPFSDTRun) {
+                out.append(((XWPFSDTRun) run).getContent().getText());
             } else {
                 out.append(run);
             }
@@ -1414,7 +1418,6 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
                 : paragraph.getPPr();
     }
 
-
     /**
      * add a new run at the end of the position of
      * the content of parameter run
@@ -1438,6 +1441,18 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
         runs.add(xwpfRun);
         iruns.add(xwpfRun);
         return xwpfRun;
+    }
+
+    public void setSDTRun(int pos, XWPFSDTRun sdt) {
+        sdtRuns.set(pos, sdt);
+        paragraph.setSdtArray(pos, sdt.getCtSdtRun());
+    }
+
+    public XWPFSDTRun createSdtRun() {
+        XWPFSDTRun sdtRun = new XWPFSDTRun(paragraph.addNewSdt(), (IRunBody)this);
+        sdtRuns.add(sdtRun);
+        iruns.add(sdtRun);
+        return sdtRun;
     }
 
     /**
@@ -1632,11 +1647,16 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
         if (pos >= 0 && pos < runs.size()) {
             // Remove the run from our high level lists
             XWPFRun run = runs.get(pos);
-            if (run instanceof XWPFHyperlinkRun ||
-                run instanceof XWPFFieldRun) {
-                // TODO Add support for removing these kinds of nested runs,
-                //  which aren't on the CTP -> R array, but CTP -> XXX -> R array
-                throw new IllegalArgumentException("Removing Field or Hyperlink runs not yet supported");
+            // CTP -> CTHyperlink -> R array
+            if (run instanceof XWPFHyperlinkRun
+                    && isTheOnlyCTHyperlinkInRuns((XWPFHyperlinkRun) run)) {
+                XmlCursor c = ((XWPFHyperlinkRun) run).getCTHyperlink()
+                        .newCursor();
+                c.removeXml();
+                c.dispose();
+                runs.remove(pos);
+                iruns.remove(run);
+                return true;
             }
             runs.remove(pos);
             iruns.remove(run);
@@ -1653,6 +1673,21 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
             return true;
         }
         return false;
+    }
+
+    /**
+     * Is there only one ctHyperlink in all runs
+     *
+     * @param run
+     *            hyperlink run
+     * @return
+     */
+    private boolean isTheOnlyCTHyperlinkInRuns(XWPFHyperlinkRun run) {
+        CTHyperlink ctHyperlink = run.getCTHyperlink();
+        long count = runs.stream().filter(r -> (r instanceof XWPFHyperlinkRun
+                && ctHyperlink == ((XWPFHyperlinkRun) r).getCTHyperlink()))
+                .count();
+        return count <= 1;
     }
 
     /**
@@ -1681,6 +1716,117 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
             return part.getPart();
         }
         return null;
+    }
+
+    /**
+     * verifies that cursor is on the right position
+     *
+     * @param cursor
+     * @return
+     */
+    private boolean isCursorInParagraph(XmlCursor cursor) {
+        XmlCursor verify = cursor.newCursor();
+        verify.toParent();
+        boolean result = (verify.getObject() == this.paragraph);
+        verify.dispose();
+        return result;
+    }
+
+    /**
+     * Insert new sdt run by cursor. update iruns, sdt collections with correct run position
+     *
+     * @param cursor
+     * @return
+     */
+    public XWPFSDTRun insertNewSDTRunByCursor(XmlCursor cursor) {
+        if (isCursorInParagraph(cursor)) {
+            String uri = CTSdtRun.type.getName().getNamespaceURI();
+            String localPart = "sdt";
+            cursor.beginElement(localPart, uri);
+            cursor.toParent();
+            CTSdtRun sdt = (CTSdtRun) cursor.getObject();
+            XWPFSDTRun newSdtRun = new XWPFSDTRun(sdt, this);
+            XmlObject o = null;
+            while (!(o instanceof CTSdtRun) && (cursor.toPrevSibling())) {
+                o = cursor.getObject();
+            }
+            if (!(o instanceof CTSdtRun)) {
+                sdtRuns.add(0, newSdtRun);
+            } else {
+                int pos = sdtRuns.indexOf(getSDTRun((CTSdtRun) o)) + 1;
+                sdtRuns.add(pos, newSdtRun);
+            }
+            int i = 0;
+            XmlCursor sdtCursor = sdt.newCursor();
+            try {
+                cursor.toCursor(sdtCursor);
+                while (cursor.toPrevSibling()) {
+                    o = cursor.getObject();
+                    if (o instanceof CTR || o instanceof CTSdtRun) {
+                        i++;
+                    }
+                }
+                iruns.add(i, newSdtRun);
+                cursor.toCursor(sdtCursor);
+                cursor.toEndToken();
+                return newSdtRun;
+            } finally {
+                sdtCursor.dispose();
+                cursor.dispose();
+            }
+        }
+        return null;
+    }
+
+    public XWPFSDTRun getSDTRun(CTSdtRun ctSdtRun) {
+        for (int i = 0; i < sdtRuns.size(); i++) {
+            if (getSDTRuns().get(i).getCtSdtRun() == ctSdtRun) {
+                return getSDTRuns().get(i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Remove Sdt Run by its position in iruns collection
+     *
+     * @param irunPos
+     * @return true if element was removed
+     */
+    public boolean removeSdtRun(int irunPos) {
+        if (irunPos >= 0 && irunPos < iruns.size()) {
+            IRunElement sdtRun = iruns.get(irunPos);
+
+            if (sdtRun instanceof XWPFSDTRun) {
+                XmlCursor c = ((XWPFSDTRun) sdtRun).getCtSdtRun().newCursor();
+                c.removeXml();
+                c.dispose();
+                sdtRuns.remove(sdtRun);
+                iruns.remove(sdtRun);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes elements {@link XWPFSDTRun}, {@link XWPFRun} from iruns collection
+     *
+     * @param irunPos
+     * @return true if element was removed
+     */
+    public boolean removeIRunElement(int irunPos) {
+        if (irunPos >= 0 && irunPos < iruns.size()) {
+            IRunElement iRunElement = iruns.get(irunPos);
+
+            if (iRunElement instanceof XWPFSDTRun) {
+                return removeSdtRun(irunPos);
+            }
+            if (iRunElement instanceof XWPFRun) {
+                return removeRun(runs.indexOf(iRunElement));
+            }
+        }
+        return false;
     }
 
     /**

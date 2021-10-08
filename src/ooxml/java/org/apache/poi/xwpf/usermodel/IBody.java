@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtBlock;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTc;
 
@@ -71,6 +72,11 @@ public interface IBody {
     public List<XWPFTable> getTables();
 
     /**
+     * Return the Sdt Blocks
+     */
+    public List<XWPFSDTBlock> getSdtBlocks();
+
+    /**
      * if there is a corresponding {@link XWPFParagraph} of the parameter ctTable in the paragraphList of this header or footer
      * the method will return this paragraph
      * if there is no corresponding {@link XWPFParagraph} the method will return null
@@ -89,6 +95,15 @@ public interface IBody {
      * @param ctTable
      */
     public XWPFTable getTable(CTTbl ctTable);
+
+    /**
+     * if there is a corresponding {@link XWPFSDTBlock} of the parameter ctSdtBlock in the
+     * Content Controls list of this header, the method will return this sdt block
+     * if there is no corresponding {@link XWPFSDTBlock} the method will return null
+     *
+     * @param ctSdtBlock
+     */
+    public XWPFSDTBlock getSdtBlock(CTSdtBlock ctSdtBlock);
 
     /**
      * Returns the paragraph that of position pos
@@ -115,6 +130,13 @@ public interface IBody {
     public XWPFTable insertNewTbl(XmlCursor cursor);
 
     /**
+     * inserts a new SdtBlock at the cursor position.
+     *
+     * @param cursor
+     */
+    public XWPFSDTBlock insertNewSdtBlock(XmlCursor cursor);
+
+    /**
      * inserts a new Table at position pos
      *
      * @param pos
@@ -133,4 +155,11 @@ public interface IBody {
      * Return XWPFDocument
      */
     public XWPFDocument getXWPFDocument();
+
+    /**
+     * Remove element from BodyElements
+     * @param pos
+     * @return
+     */
+    public boolean removeBodyElement(int pos);
 }

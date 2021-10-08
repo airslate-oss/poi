@@ -22,6 +22,7 @@ buildscript {
     dependencies {
         classpath 'me.champeau.gradle:japicmp-gradle-plugin:0.1.2'	// 2.x requires Gradle >=4
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
     }
 }
 
@@ -61,6 +62,8 @@ Define properties for all projects, including this one
 */
 allprojects {
     apply plugin: 'eclipse'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.artifactory'
 
     task wrapper(type: Wrapper) {
         gradleVersion = '4.10.3'
@@ -90,8 +93,9 @@ subprojects {
 
     // See https://github.com/melix/japicmp-gradle-plugin 
     apply plugin: 'me.champeau.gradle.japicmp'
-        
-    version = '4.1.1-SNAPSHOT'
+
+    group 'org.apache.poi'
+    version = '4.1.2-AIRSLATE-SNAPSHOT'
     ext {
         japicmpversion = '4.1.0'
     }
@@ -106,6 +110,37 @@ subprojects {
         mavenCentral()
         maven {
             url 'https://repository.apache.org/content/repositories/releases'
+        }
+    }
+
+    publishing {
+        publications {
+             mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
+    artifactoryPublish {
+        publications(publishing.publications.mavenJava)
+    }
+
+    artifactory {
+        clientConfig.setIncludeEnvVars(true)
+        clientConfig.publisher.publishBuildInfo = false
+
+        contextUrl = "https://artifactory.infrateam.xyz"
+
+        publish {
+            repository {
+                repoKey = 'maven-thirdparty'
+                username = System.getenv('MVN_USER')
+                password = System.getenv('MVN_PASS')
+            }
+
+            defaults {
+                publications(publishing.publications.mavenJava)
+            }
         }
     }
 
