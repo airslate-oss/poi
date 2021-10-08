@@ -149,4 +149,20 @@ public class TestXWPFTableCell {
         assertEquals(2500, cell.getWidth());
         doc.close();
     }
+
+    @Test
+    public void testRemoveParagraphFromTableCell() throws Exception {
+        XWPFDocument doc = new XWPFDocument();
+        XWPFTable t = doc.createTable(1, 1);
+        XWPFTableCell cell = t.getRow(0).getCell(0);
+        XWPFParagraph p = cell.addParagraph();
+
+        assertEquals(2, cell.getBodyElements().size());
+        assertEquals(2, cell.getParagraphs().size());
+
+        cell.removeParagraph(1);
+
+        assertEquals(1, cell.getBodyElements().size());
+        assertEquals(1, cell.getParagraphs().size());
+    }
 }
