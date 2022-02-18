@@ -4,7 +4,7 @@ import org.apache.poi.xwpf.XWPFTestDataSamples;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.poi.POITestCase.assertContains;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Test class for manipulation of block level Content Controls.
@@ -33,12 +33,12 @@ public final class TestXWPFSDTBlock {
         XmlCursor cur = doc.getDocument().newCursor();
         cur.toFirstChild(); // move cursor to Body
         cur.toFirstChild(); // move cursor to SDT
-        assertTrue(cur.getObject() instanceof CTSdtBlock);
+        Assertions.assertTrue(cur.getObject() instanceof CTSdtBlock);
 
         XWPFSDTPr sdtBlockPr = sdtBlock.createSdtPr();
 
         cur.toFirstChild();
-        assertTrue(cur.getObject() instanceof CTSdtPr);
+        Assertions.assertTrue(cur.getObject() instanceof CTSdtPr);
     }
 
     /**
@@ -53,12 +53,12 @@ public final class TestXWPFSDTBlock {
         XmlCursor cur = doc.getDocument().newCursor();
         cur.toFirstChild(); // move cursor to Body
         cur.toFirstChild(); // move cursor to SDT
-        assertTrue(cur.getObject() instanceof CTSdtBlock);
+        Assertions.assertTrue(cur.getObject() instanceof CTSdtBlock);
 
         XWPFSDTContentBlock sdtBlockContent = sdtBlock.createSdtContent();
 
         cur.toFirstChild();
-        assertTrue(cur.getObject() instanceof CTSdtContentBlock);
+        Assertions.assertTrue(cur.getObject() instanceof CTSdtContentBlock);
     }
 
     @Test
@@ -67,7 +67,7 @@ public final class TestXWPFSDTBlock {
         XWPFSDTBlock sdtBlock = (XWPFSDTBlock) doc.getBodyElements().get(2);
 
         CTP p = sdtBlock.getContent().getParagraphs().get(0).getCTP();
-        assertSame(
+        Assertions.assertSame(
                 sdtBlock.getContent().getParagraphs().get(0),
                 sdtBlock.getContent().getParagraph(p)
         );
@@ -83,13 +83,13 @@ public final class TestXWPFSDTBlock {
         cur.toEndToken(); // move cursor to the end of Tbl
         cur.toNextToken(); // move cursor right after the Tbl
 
-        assertEquals(1, sdtBlock.getContent().getParagraphs().size());
+        Assertions.assertEquals(1, sdtBlock.getContent().getParagraphs().size());
 
         XWPFParagraph newP = sdtBlock.getContent().insertNewParagraph(cur);
 
-        assertEquals(2, sdtBlock.getContent().getParagraphs().size());
-        assertEquals(3, sdtBlock.getContent().getBodyElements().size());
-        assertSame(newP, sdtBlock.getContent().getParagraphs().get(0));
+        Assertions.assertEquals(2, sdtBlock.getContent().getParagraphs().size());
+        Assertions.assertEquals(3, sdtBlock.getContent().getBodyElements().size());
+        Assertions.assertSame(newP, sdtBlock.getContent().getParagraphs().get(0));
     }
 
     @Test
@@ -107,15 +107,15 @@ public final class TestXWPFSDTBlock {
 
         XWPFSDTBlock sdtBlock = doc.insertNewSdtBlock(cur);
 
-        assertEquals(3, doc.getBodyElements().size());
-        assertEquals(1, doc.getSdtBlocks().size());
+        Assertions.assertEquals(3, doc.getBodyElements().size());
+        Assertions.assertEquals(1, doc.getSdtBlocks().size());
 
         cur = p.getCTP().newCursor();
         cur.toEndToken();
         cur.toNextToken();
 
         // verify that Sdt Block is inserted
-        assertTrue(cur.getObject() instanceof CTSdtBlock);
+        Assertions.assertTrue(cur.getObject() instanceof CTSdtBlock);
     }
 
     @Test
@@ -128,9 +128,9 @@ public final class TestXWPFSDTBlock {
                 doc.getParagraphs().get(0)
         );
 
-        assertEquals("Some text1", sdtBlockContent.getParagraphs().get(0).getText());
-        assertEquals(1, sdtBlockContent.getParagraphs().size());
-        assertEquals(1, sdtBlockContent.getBodyElements().size());
+        Assertions.assertEquals("Some text1", sdtBlockContent.getParagraphs().get(0).getText());
+        Assertions.assertEquals(1, sdtBlockContent.getParagraphs().size());
+        Assertions.assertEquals(1, sdtBlockContent.getBodyElements().size());
     }
 
     @Test
@@ -143,9 +143,9 @@ public final class TestXWPFSDTBlock {
                 doc.getTables().get(0)
         );
 
-        assertEquals("Deep in Tbl", sdtBlockContent.getTables().get(0).getText().trim());
-        assertEquals(1, sdtBlockContent.getTables().size());
-        assertEquals(1, sdtBlockContent.getBodyElements().size());
+        Assertions.assertEquals("Deep in Tbl", sdtBlockContent.getTables().get(0).getText().trim());
+        Assertions.assertEquals(1, sdtBlockContent.getTables().size());
+        Assertions.assertEquals(1, sdtBlockContent.getBodyElements().size());
     }
 
     @Test
@@ -158,13 +158,13 @@ public final class TestXWPFSDTBlock {
         cur.toEndToken(); // move cursor to the end of Tbl
         cur.toNextToken(); // move cursor fight after the Tbl
 
-        assertEquals(1, sdtBlock.getContent().getTables().size());
+        Assertions.assertEquals(1, sdtBlock.getContent().getTables().size());
 
         XWPFTable newTbl = sdtBlock.getContent().insertNewTbl(cur);
 
-        assertEquals(2, sdtBlock.getContent().getTables().size());
-        assertEquals(3, sdtBlock.getContent().getBodyElements().size());
-        assertSame(newTbl, sdtBlock.getContent().getTables().get(1));
+        Assertions.assertEquals(2, sdtBlock.getContent().getTables().size());
+        Assertions.assertEquals(3, sdtBlock.getContent().getBodyElements().size());
+        Assertions.assertSame(newTbl, sdtBlock.getContent().getTables().get(1));
     }
 
     /**
@@ -178,25 +178,25 @@ public final class TestXWPFSDTBlock {
         XWPFSDTBlock sdtBlock = (XWPFSDTBlock) doc.getBodyElements().get(2);
 
         // Tag
-        assertEquals("block-sdt-tag", sdtBlock.getSdtPr().getTag());
+        Assertions.assertEquals("block-sdt-tag", sdtBlock.getSdtPr().getTag());
 
         sdtBlock.getSdtPr().setTag("new-block-tag");
-        assertEquals("new-block-tag", sdtBlock.getSdtPr().getTag());
+        Assertions.assertEquals("new-block-tag", sdtBlock.getSdtPr().getTag());
 
         // Title
-        assertEquals("block-sdt-title", sdtBlock.getSdtPr().getTitle());
+        Assertions.assertEquals("block-sdt-title", sdtBlock.getSdtPr().getTitle());
 
         sdtBlock.getSdtPr().setTitle("new-block-title");
-        assertEquals("new-block-title", sdtBlock.getSdtPr().getTitle());
+        Assertions.assertEquals("new-block-title", sdtBlock.getSdtPr().getTitle());
 
         // Lock
-        assertEquals(STLock.Enum.forInt(STLock.INT_SDT_CONTENT_LOCKED), sdtBlock.getSdtPr().getLock());
+        Assertions.assertEquals(STLock.Enum.forInt(STLock.INT_SDT_CONTENT_LOCKED), sdtBlock.getSdtPr().getLock());
 
         sdtBlock.getSdtPr().setLock(STLock.UNLOCKED);
-        assertEquals(STLock.UNLOCKED, sdtBlock.getSdtPr().getLock());
+        Assertions.assertEquals(STLock.UNLOCKED, sdtBlock.getSdtPr().getLock());
 
         // SdtContent
-        assertEquals(
+        Assertions.assertEquals(
                 "Some content1",
                 sdtBlock.getContent()
                         .getTables()

@@ -8,7 +8,7 @@ public interface ISDTContentRun {
      */
     XWPFRun createRun();
     /**
-     * Clone existing {@link IRunElement} to content & return ref to it
+     * Clone existing {@link IRunElement} to content and return ref to it
      *
      * @param elem
      * @return

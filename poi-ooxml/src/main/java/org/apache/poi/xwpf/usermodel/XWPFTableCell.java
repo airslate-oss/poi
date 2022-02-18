@@ -85,6 +85,7 @@ public class XWPFTableCell implements IBody, ICell {
         bodyElements = new ArrayList<>();
         paragraphs = new ArrayList<>();
         tables = new ArrayList<>();
+        sdtBlocks = new ArrayList<>();
 
         XmlCursor cursor = ctTc.newCursor();
         try {
@@ -154,7 +155,6 @@ public class XWPFTableCell implements IBody, ICell {
     public XWPFParagraph addParagraph() {
         XWPFParagraph p = new XWPFParagraph(ctTc.addNewP(), this);
         addParagraph(p);
-        bodyElements.add(p);
         return p;
     }
 

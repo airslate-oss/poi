@@ -428,44 +428,21 @@ public class XWPFComment implements IBody {
         ctComment.setDate(date);
     }
 
-    /**
-     * Unimplemented method
-     *
-     * @param pos
-     * @return
-     */
     @Override
     public boolean removeBodyElement(int pos) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Unimplemented method
-     *
-     * @param XmlCursor cursor
-     * @return null
-     */
     @Override
     public XWPFSDTBlock insertNewSdtBlock(XmlCursor cursor) {
         return null;
     }
 
-    /**
-     * Unimplemented method
-     *
-     * @param CTSdtBlock block
-     * @return null
-     */
     @Override
     public XWPFSDTBlock getSdtBlock(CTSdtBlock block) {
         return null;
     }
 
-    /**
-     * Unimplemented method
-     *
-     * @return null
-     */
     @Override
     public List<XWPFSDTBlock> getSdtBlocks() {
         return null;

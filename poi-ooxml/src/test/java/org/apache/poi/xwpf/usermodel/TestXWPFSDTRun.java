@@ -2,15 +2,15 @@ package org.apache.poi.xwpf.usermodel;
 
 import org.apache.poi.xwpf.XWPFTestDataSamples;
 import org.apache.xmlbeans.XmlCursor;
-import org.junit.Test;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STLock;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.apache.poi.POITestCase.assertContains;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Test class for manipulation of inline Content Controls.
@@ -32,7 +32,7 @@ public final class TestXWPFSDTRun {
         XmlCursor cur = sdtRun.getCtSdtRun().newCursor();
         cur.toFirstChild();
 
-        assertEquals(sdtPr.getSdtPr(), cur.getObject());
+        Assertions.assertEquals(sdtPr.getSdtPr(), cur.getObject());
     }
 
     /**
@@ -48,7 +48,7 @@ public final class TestXWPFSDTRun {
         XmlCursor cur = sdtRun.getCtSdtRun().newCursor();
         cur.toFirstChild();
 
-        assertEquals(sdtContent.getCtContentRun(), cur.getObject());
+        Assertions.assertEquals(sdtContent.getCtContentRun(), cur.getObject());
     }
 
     /**
@@ -65,9 +65,9 @@ public final class TestXWPFSDTRun {
         XWPFRun run = sdtContent.createRun();
         run.setText("text in SDT");
 
-        assertEquals(1, sdt.getContent().getIRuns().size());
-        assertEquals(1, sdt.getContent().getRuns().size());
-        assertEquals("text in SDT", ((XWPFRun) sdt.getContent().getIRuns().get(0)).getText(0));
+        Assertions.assertEquals(1, sdt.getContent().getIRuns().size());
+        Assertions.assertEquals(1, sdt.getContent().getRuns().size());
+        Assertions.assertEquals("text in SDT", ((XWPFRun) sdt.getContent().getIRuns().get(0)).getText(0));
     }
 
     /**
@@ -103,12 +103,12 @@ public final class TestXWPFSDTRun {
         cur.push();
 
         // verify that second element in paragraph is SDT
-        assertTrue(cur.getObject() instanceof CTSdtRun);
+        Assertions.assertTrue(cur.getObject() instanceof CTSdtRun);
 
         cur.toNextSibling(); // to next R
         cur.toNextSibling(); // to Sdt after R
 
-        assertTrue(cur.getObject() instanceof CTSdtRun);
+        Assertions.assertTrue(cur.getObject() instanceof CTSdtRun);
 
         // create Pr & Content for SDT
         XWPFSDTPr sdtPr = sdtRunBefore.createSdtPr();
@@ -125,14 +125,14 @@ public final class TestXWPFSDTRun {
         cur.toChild(1); // move to SdtContent
         cur.toFirstChild(); // select copied run
 
-        assertTrue(cur.getObject() instanceof CTR);
-        assertEquals("second ",  new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getText(0));
-        assertEquals("Times New Roman",  new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getFontFamily());
+        Assertions.assertTrue(cur.getObject() instanceof CTR);
+        Assertions.assertEquals("second ",  new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getText(0));
+        Assertions.assertEquals("Times New Roman",  new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getFontFamily());
 
-        assertEquals(5, p.getIRuns().size());
-        assertEquals(3, p.getRuns().size());
-        assertEquals(XWPFSDTRun.class, p.getIRuns().get(1).getClass());
-        assertEquals(XWPFSDTRun.class, p.getIRuns().get(3).getClass());
+        Assertions.assertEquals(5, p.getIRuns().size());
+        Assertions.assertEquals(3, p.getRuns().size());
+        Assertions.assertEquals(XWPFSDTRun.class, p.getIRuns().get(1).getClass());
+        Assertions.assertEquals(XWPFSDTRun.class, p.getIRuns().get(3).getClass());
     }
 
     /**
@@ -147,27 +147,27 @@ public final class TestXWPFSDTRun {
         XWPFSDTRun sdtRun = (XWPFSDTRun) paragraph.getIRuns().get(1);
 
         // Tag
-        assertEquals("inline-sdt-tag", sdtRun.getSdtPr().getTag());
+        Assertions.assertEquals("inline-sdt-tag", sdtRun.getSdtPr().getTag());
 
         sdtRun.getSdtPr().setTag("new-inline-tag");
-        assertEquals("new-inline-tag", sdtRun.getSdtPr().getTag());
+        Assertions.assertEquals("new-inline-tag", sdtRun.getSdtPr().getTag());
 
         // Title
-        assertEquals("inline-sdt-title", sdtRun.getSdtPr().getTitle());
+        Assertions.assertEquals("inline-sdt-title", sdtRun.getSdtPr().getTitle());
 
         sdtRun.getSdtPr().setTitle("new-inline-title");
-        assertEquals("new-inline-title", sdtRun.getSdtPr().getTitle());
+        Assertions.assertEquals("new-inline-title", sdtRun.getSdtPr().getTitle());
 
         // Lock
-        assertEquals(STLock.SDT_CONTENT_LOCKED, sdtRun.getSdtPr().getLock());
+        Assertions.assertEquals(STLock.SDT_CONTENT_LOCKED, sdtRun.getSdtPr().getLock());
 
         sdtRun.getSdtPr().setLock(STLock.SDT_LOCKED);
-        assertEquals(STLock.SDT_LOCKED, sdtRun.getSdtPr().getLock());
+        Assertions.assertEquals(STLock.SDT_LOCKED, sdtRun.getSdtPr().getLock());
 
         // SdtContent
-        assertEquals("inline-sdt", sdtRun.getContent().getRuns().get(0).getText(0));
+        Assertions.assertEquals("inline-sdt", sdtRun.getContent().getRuns().get(0).getText(0));
 
         sdtRun.getContent().getRuns().get(0).setText("new-inline-sdt", 0);
-        assertEquals("new-inline-sdt", sdtRun.getContent().getRuns().get(0).getText(0));
+        Assertions.assertEquals("new-inline-sdt", sdtRun.getContent().getRuns().get(0).getText(0));
     }
 }

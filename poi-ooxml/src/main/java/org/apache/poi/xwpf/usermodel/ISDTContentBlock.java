@@ -55,7 +55,7 @@ public interface ISDTContentBlock {
     XWPFTable insertNewTbl(XmlCursor cursor);
 
     /**
-     * Clone existing {@link IBodyElement} to content & return ref to it
+     * Clone existing {@link IBodyElement} to content and return ref to it
      *
      * @param elem
      * @return

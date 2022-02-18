@@ -1781,7 +1781,6 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContentsBlock,
      */
     public boolean removeRun(int pos) {
         if (pos >= 0 && pos < runs.size()) {
-            // Remove the run from our high level lists
             XWPFRun run = runs.get(pos);
             // CTP -> CTHyperlink -> R array
             if (run instanceof XWPFHyperlinkRun
@@ -1794,18 +1793,21 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContentsBlock,
                 iruns.remove(run);
                 return true;
             }
+            // CTP -> CTField -> R array
+            if (run instanceof XWPFFieldRun
+                    && isTheOnlyCTFieldInRuns((XWPFFieldRun) run)) {
+                XmlCursor c = ((XWPFFieldRun) run).getCTField().newCursor();
+                c.removeXml();
+                c.dispose();
+                runs.remove(pos);
+                iruns.remove(run);
+                return true;
+            }
+            XmlCursor c = run.getCTR().newCursor();
+            c.removeXml();
+            c.dispose();
             runs.remove(pos);
             iruns.remove(run);
-            // Remove the run from the low-level XML
-            //calculate the correct pos as our run/irun list contains hyperlinks and fields so is different to the paragraph R array.
-            int rPos = 0;
-            for(int i=0;i<pos;i++) {
-                XWPFRun currRun = runs.get(i);
-                if(!(currRun instanceof XWPFHyperlinkRun || currRun instanceof XWPFFieldRun)) {
-                    rPos++;
-                }
-            }
-            getCTP().removeR(rPos);
             return true;
         }
         return false;
