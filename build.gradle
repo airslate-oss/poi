@@ -31,6 +31,7 @@ buildscript {
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3'
         classpath 'de.thetaphi:forbiddenapis:3.2'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
     }
 }
 
@@ -76,8 +77,7 @@ ant.taskdef(name: "junit",
 
 
 wrapper {
-    // https://stackoverflow.com/a/54741656/2066598
-    gradleVersion = '7.3.3'
+    gradleVersion = '7.4'
 }
 
 task adjustWrapperPropertiesFile {
@@ -97,6 +97,8 @@ wrapper.finalizedBy adjustWrapperPropertiesFile
 allprojects {
 //    apply plugin: 'eclipse'
     apply plugin: 'idea'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.artifactory'
 }
 
 /**
@@ -107,11 +109,10 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'jacoco'
     apply plugin: 'maven-publish'
-    apply plugin: 'signing'
     apply plugin: 'de.thetaphi.forbiddenapis'
     apply plugin: 'com.github.spotbugs'
 
-    version = '5.2.0'
+    version = '5.2.1-ASP-13774-build-SNAPSHOT'
     ext {
         bouncyCastleVersion = '1.70'
         commonsCodecVersion = '1.15'
@@ -120,13 +121,13 @@ subprojects {
         commonsMathVersion = '3.6.1'
         junitVersion = '5.8.2'
         log4jVersion = '2.17.1'
-        mockitoVersion = '4.2.0'
+        mockitoVersion = '4.3.1'
         hamcrestVersion = '2.2'
         xmlbeansVersion = '5.0.3'
         batikVersion = '1.14'
         graphics2dVersion = '0.34'
         pdfboxVersion = '2.0.25'
-        saxonVersion = '10.6'
+        saxonVersion = '11.1.1'
         apiGuardianVersion = '1.1.2'
 
         JAVA9_SRC = 'src/main/java9'
@@ -143,8 +144,8 @@ subprojects {
         all {
             resolutionStrategy {
                 force "commons-io:commons-io:${commonsIoVersion}"
-                force 'org.slf4j:slf4j-api:1.7.32'
-                force 'com.fasterxml.woodstox:woodstox-core:6.2.7'
+                force 'org.slf4j:slf4j-api:1.7.36'
+                force 'com.fasterxml.woodstox:woodstox-core:6.2.8'
             }
         }
     }
@@ -178,8 +179,7 @@ subprojects {
     }
 
     task wrapper(type: Wrapper){
-        // https://stackoverflow.com/a/65701523/2066598
-        gradleVersion = '7.3.3'
+        gradleVersion = '7.4'
     }
 
     java {
@@ -213,6 +213,38 @@ subprojects {
         doLast {
             ant.checksum(file: it.archivePath, algorithm: 'SHA-256', fileext: '.sha256', format: 'MD5SUM')
             ant.checksum(file: it.archivePath, algorithm: 'SHA-512', fileext: '.sha512', format: 'MD5SUM')
+        }
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
+    artifactoryPublish {
+        publications(publishing.publications.mavenJava)
+        dependsOn build
+    }
+
+    artifactory {
+        clientConfig.setIncludeEnvVars(true)
+        clientConfig.publisher.publishBuildInfo = false
+
+        contextUrl = "https://artifactory.infrateam.xyz/artifactory"
+
+        publish {
+            repository {
+                repoKey = 'maven-thirdparty'
+                username = 'username'
+                password = 'password'
+            }
+
+            defaults {
+                publications(publishing.publications.mavenJava)
+            }
         }
     }
 
@@ -419,92 +451,9 @@ subprojects {
     jenkins.dependsOn jacocoTestReport
     jenkins.dependsOn rat
 
-    publishing {
-        publications {
-            POI(MavenPublication) {
-                groupId 'org.apache.poi'
-                artifactId project.archivesBaseName
-
-                from components.java
-
-                pom {
-                    packaging = 'jar'
-                    url = 'https://poi.apache.org/'
-                    name = 'Apache POI'
-                    description = 'Apache POI - Java API To Access Microsoft Format Files'
-
-                    mailingLists {
-                        mailingList {
-                            name = 'POI Users List'
-                            subscribe = 'user-subscribe@poi.apache.org'
-                            unsubscribe = 'user-unsubscribe@poi.apache.org'
-                            archive = 'http://mail-archives.apache.org/mod_mbox/poi-user/'
-                        }
-                        mailingList {
-                            name = 'POI Developer List'
-                            subscribe = 'dev-subscribe@poi.apache.org'
-                            unsubscribe = 'dev-unsubscribe@poi.apache.org'
-                            archive = 'http://mail-archives.apache.org/mod_mbox/poi-dev/'
-                        }
-                    }
-
-                    licenses {
-                        license {
-                            name = 'Apache License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution = 'repo'
-                        }
-                    }
-
-                    organization {
-                        name = 'Apache Software Foundation'
-                        url = 'http://www.apache.org/'
-                    }
-
-                    withXml {
-                        def r = asElement()
-                        def doc = r.getOwnerDocument()
-                        def hdr = new File('../legal/HEADER')
-                        if (!hdr.exists()) hdr = new File('legal/HEADER')
-                        def asl = doc.createComment(hdr.text)
-                        // adding ASF header before root node is ignored
-                        // doc.insertBefore(asl, doc.getDocumentElement())
-                        r.insertBefore(asl, r.getFirstChild())
-
-                        // Replace ooxml-full with ooxml-lite
-                        XPath xpath = XPathFactory.newInstance().newXPath()
-                        NodeList res = (NodeList)xpath.evaluate("//dependency/artifactId[text() = 'poi-ooxml-full']", doc, XPathConstants.NODESET)
-                        for (int i=res.getLength()-1; i>=0; i--) {
-                            res.item(i).setTextContent('poi-ooxml-lite')
-                        }
-
-                        // remove duplicate entries
-                        res = (NodeList)xpath.evaluate("//dependency[artifactId = ./preceding-sibling::dependency/artifactId]", doc, XPathConstants.NODESET)
-                        for (int i=res.getLength()-1; i>=0; i--) {
-                            Node n = res.item(i)
-                            n.getParentNode().removeChild(n)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    generatePomFileForPOIPublication.destination = "../build/dist/maven/${project.archivesBaseName}/${project.archivesBaseName}-${project.version}.pom"
-
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
     }
-
-    signing {
-        setRequired {
-            // signing is only required if this is a release version
-            // and the artifacts are to be published
-            gradle.taskGraph.allTasks.any { it instanceof PublishToMavenRepository }
-        }
-        sign publishing.publications.POI
-    }
-    signPOIPublication.dependsOn('generatePomFileForPOIPublication')
 
     spotbugs {
         ignoreFailures = true
@@ -635,10 +584,9 @@ task replaceVersion() {
 
     var version = subprojects[0].version
     var tokens = [
-//        [ 'sonar', '**/pom.xml', '(packaging>\\n\\s*<version>)[0-9.]+(?:-SNAPSHOT)?', "\\1${version}" ],
-//        [ 'sonar', '**/pom.xml', '(poi-parent&lt;/artifactId>\\n\\s*<version>)[0-9.]+(?:-SNAPSHOT)?', "\1${version}" ],
-[ 'osgi', 'pom.xml', '(packaging>\\n\\s*<version>)[0-9.]+(?:-SNAPSHOT|-RC\\d+)?', "\\1${version}" ]
-// [ '.', 'build.gradle', ' version = \'[0-9.]+(?:-SNAPSHOT)?\'', " version = '${version}'" ]
+            [ 'osgi', 'pom.xml', '(packaging>\\n\\s*<version>)[0-9.]+(?:-SNAPSHOT|-RC\\d+)?', "\\1${version}" ],
+            [ 'osgi', 'pom.xml', '(<poi.version>)[0-9.]+(?:-SNAPSHOT|-RC\\d+)?', "\\1${version}" ]
+            // [ '.', 'build.gradle', ' version = \'[0-9.]+(?:-SNAPSHOT)?\'', " version = '${version}'" ]
     ]
 
     doLast {
@@ -759,6 +707,26 @@ distributions {
 binDistZip.dependsOn 'zipJavadocs', ':poi-ooxml-lite:jar'
 binDistTar.dependsOn 'zipJavadocs', ':poi-ooxml-lite:jar'
 
+task soLinkCheck() {
+    doLast {
+        def path = ant.path {
+            fileset(dir: '.', includes: '**/*.java') {
+                exclude(name: 'build.gradle')
+                contains(text: 'stackoverflow.com')
+            }
+        }
+
+        path.list().each {
+            println it
+        }
+
+        if (path.size() > 0) {
+            // #65796 - minimize notifications about non-asf open source
+            throw new GradleException('License issue found - conceal the link and contradict any findings m(')
+        }
+    }
+}
+
 var srcDep = [
         ':poi:cacheJava9',
         ':poi:cacheTest9',
@@ -778,7 +746,8 @@ var srcDep = [
 
 srcDistTar.dependsOn srcDep
 srcDistZip.dependsOn srcDep
-rat.dependsOn srcDep
+soLinkCheck.dependsOn srcDep
+rat.dependsOn soLinkCheck
 
 task fixDistDir {
     doLast {
