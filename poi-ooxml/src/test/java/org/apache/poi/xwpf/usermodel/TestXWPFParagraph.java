@@ -256,6 +256,54 @@ public final class TestXWPFParagraph {
     }
 
     @Test
+    public void testRemoveHyperLinkRun() {
+        XWPFDocument doc = new XWPFDocument();
+        XWPFParagraph p = doc.createParagraph();
+        p.createRun().setText("Hyperlink: ");
+        XWPFHyperlinkRun hyperLink = p.createHyperlinkRun("https://google.com");
+        hyperLink.setText("https://google.com");
+
+        assertTrue(p.getIRuns().get(1) instanceof XWPFHyperlinkRun);
+        assertEquals(2, doc.getParagraphs().get(0).getIRuns().size());
+        p.removeRun(1);
+        assertEquals(1, doc.getParagraphs().get(0).getIRuns().size());
+    }
+
+    @Test
+    public void testRemoveSdtRun() {
+        XWPFDocument doc = new XWPFDocument();
+        XWPFParagraph p = doc.createParagraph();
+
+        p.createRun();
+        p.createSdtRun();
+
+        assertEquals(1, p.getCTP().getSdtList().size());
+        assertTrue(p.removeSdtRun(1));
+        assertEquals(0, p.getCTP().getSdtList().size());
+    }
+
+    @Test
+    public void testRemoveIRunElement() {
+        XWPFDocument doc = new XWPFDocument();
+        XWPFParagraph p = doc.createParagraph();
+
+        p.createRun();
+        p.createSdtRun();
+        p.createRun().setText("last");
+
+        assertEquals(1, p.getCTP().getSdtList().size());
+        assertEquals(2, p.getCTP().getRList().size());
+
+        assertTrue(p.removeIRunElement(1));
+        assertTrue(p.removeIRunElement(0));
+
+        assertEquals(0, p.getCTP().getSdtList().size());
+        assertEquals(1, p.getCTP().getRList().size());
+
+        assertEquals("last", ((XWPFRun) p.getIRuns().get(0)).text());
+    }
+
+    @Test
     void testSetGetWordWrap() throws IOException {
         try (XWPFDocument doc = new XWPFDocument()) {
             XWPFParagraph p = doc.createParagraph();
@@ -447,7 +495,7 @@ public final class TestXWPFParagraph {
         assertTrue(paragraph.getRuns().get(2) instanceof XWPFHyperlinkRun);
         assertTrue(paragraph.getRuns().get(3) instanceof XWPFFieldRun);
 
-        assertTrue(paragraph.getIRuns().get(1) instanceof XWPFSDT);
+        assertTrue(paragraph.getIRuns().get(1) instanceof XWPFSDTRun);
         assertTrue(paragraph.getIRuns().get(2) instanceof XWPFHyperlinkRun);
 
         paragraph.removeRun(1);
@@ -455,21 +503,21 @@ public final class TestXWPFParagraph {
         assertTrue(paragraph.getRuns().get(1) instanceof XWPFHyperlinkRun);
         assertTrue(paragraph.getRuns().get(2) instanceof XWPFFieldRun);
 
-        assertTrue(paragraph.getIRuns().get(1) instanceof XWPFSDT);
+        assertTrue(paragraph.getIRuns().get(1) instanceof XWPFSDTRun);
         assertTrue(paragraph.getIRuns().get(2) instanceof XWPFHyperlinkRun);
 
         paragraph.removeRun(1);
         assertEquals(2, paragraph.getRuns().size());
         assertTrue(paragraph.getRuns().get(1) instanceof XWPFFieldRun);
 
-        assertTrue(paragraph.getIRuns().get(1) instanceof XWPFSDT);
+        assertTrue(paragraph.getIRuns().get(1) instanceof XWPFSDTRun);
         assertTrue(paragraph.getIRuns().get(2) instanceof XWPFFieldRun);
 
         paragraph.removeRun(0);
         assertEquals(1, paragraph.getRuns().size());
         assertTrue(paragraph.getRuns().get(0) instanceof XWPFFieldRun);
 
-        assertTrue(paragraph.getIRuns().get(0) instanceof XWPFSDT);
+        assertTrue(paragraph.getIRuns().get(0) instanceof XWPFSDTRun);
         assertTrue(paragraph.getIRuns().get(1) instanceof XWPFFieldRun);
 
         XWPFRun newRun = paragraph.insertNewRun(0);
