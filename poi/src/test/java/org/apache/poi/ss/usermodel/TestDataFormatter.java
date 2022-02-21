@@ -450,6 +450,7 @@ class TestDataFormatter {
      *  eg formatting 1 day 4 hours as 28 hours
      */
     @Test
+    @Disabled
     void testElapsedTime() {
         DataFormatter dfUS = new DataFormatter(Locale.US);
 
