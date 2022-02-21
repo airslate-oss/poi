@@ -21,7 +21,7 @@ import org.apache.poi.wp.usermodel.Paragraph;
 
 /**
  * Simple interface describing both {@link XWPFParagraph}
- * and {@link XWPFSDT}
+ * and {@link XWPFSDTBlock}
  * <p>
  * TODO Should this be based on / extend {@link Paragraph}?
  */

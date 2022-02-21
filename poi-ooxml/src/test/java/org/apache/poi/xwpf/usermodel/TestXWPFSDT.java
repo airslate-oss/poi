@@ -17,15 +17,14 @@
 
 package org.apache.poi.xwpf.usermodel;
 
-import static org.apache.poi.POITestCase.assertContains;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.poi.xwpf.XWPFTestDataSamples;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.xwpf.XWPFTestDataSamples;
+import static org.apache.poi.POITestCase.assertContains;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class TestXWPFSDT {
@@ -37,7 +36,7 @@ public final class TestXWPFSDT {
     void testNestedSDTs() throws Exception {
         try (XWPFDocument doc = XWPFTestDataSamples.openSampleDocument("Bug64561.docx")) {
             XWPFAbstractSDT sdt = extractAllSDTs(doc).get(0);
-            assertEquals("Subject", sdt.getContent().getText(), "extracted text");
+            Assertions.assertEquals("Subject", sdt.getContent().getText(), "extracted text");
         }
     }
 
@@ -58,10 +57,10 @@ public final class TestXWPFSDT {
                 }
 
             }
-            assertEquals(13, sdts.size(), "controls size");
+            Assertions.assertEquals(13, sdts.size(), "controls size");
 
-            assertEquals("MyTag", tag, "tag");
-            assertEquals("MyTitle", title, "title");
+            Assertions.assertEquals("MyTag", tag, "tag");
+            Assertions.assertEquals("MyTitle", title, "title");
         }
     }
 
@@ -86,11 +85,11 @@ public final class TestXWPFSDT {
         try (XWPFDocument doc =XWPFTestDataSamples.openSampleDocument("Bug54849.docx")) {
             List<XWPFAbstractSDT> sdts = extractAllSDTs(doc);
 
-            assertEquals(contents.length, sdts.size(), "number of sdts");
+            Assertions.assertEquals(contents.length, sdts.size(), "number of sdts");
 
             for (int i = 0; i < contents.length; i++) {
                 XWPFAbstractSDT sdt = sdts.get(i);
-                assertEquals(contents[i], sdt.getContent().toString(), i + ": " + contents[i]);
+                Assertions.assertEquals(contents[i], sdt.getContent().toString(), i + ": " + contents[i]);
             }
         }
     }
@@ -105,18 +104,18 @@ public final class TestXWPFSDT {
         try (XWPFDocument doc = XWPFTestDataSamples.openSampleDocument("Bug54771a.docx")) {
             List<XWPFAbstractSDT> sdts = extractAllSDTs(doc);
             String text = sdts.get(0).getContent().getText();
-            assertEquals(2, sdts.size());
+            Assertions.assertEquals(2, sdts.size());
             assertContains(text, "Test");
 
             text = sdts.get(1).getContent().getText();
             assertContains(text, "Test Subtitle");
             assertContains(text, "Test User");
-            assertTrue(text.indexOf("Test") < text.indexOf("Test Subtitle"));
+            Assertions.assertTrue(text.indexOf("Test") < text.indexOf("Test Subtitle"));
         }
 
         try (XWPFDocument doc = XWPFTestDataSamples.openSampleDocument("Bug54771b.docx")) {
              List<XWPFAbstractSDT> sdts = extractAllSDTs(doc);
-            assertEquals(3, sdts.size());
+            Assertions.assertEquals(3, sdts.size());
             assertContains(sdts.get(0).getContent().getText(), "Test");
 
             assertContains(sdts.get(1).getContent().getText(), "Test Subtitle");
@@ -146,7 +145,7 @@ public final class TestXWPFSDT {
 
             for (int i = 0; i < sdts.size(); i++) {
                 XWPFAbstractSDT sdt = sdts.get(i);
-                assertEquals(targs.get(i), sdt.getContent().getText());
+                Assertions.assertEquals(targs.get(i), sdt.getContent().getText());
             }
         }
     }
@@ -156,9 +155,9 @@ public final class TestXWPFSDT {
         //handle sdtbody without an sdtpr
         try (XWPFDocument doc =XWPFTestDataSamples.openSampleDocument("Bug60341.docx")) {
             List<XWPFAbstractSDT> sdts = extractAllSDTs(doc);
-            assertEquals(1, sdts.size());
-            assertEquals("", sdts.get(0).getTag());
-            assertEquals("", sdts.get(0).getTitle());
+            Assertions.assertEquals(1, sdts.size());
+            Assertions.assertEquals(null, sdts.get(0).getSdtPr().getTag());
+            Assertions.assertEquals(null, sdts.get(0).getSdtPr().getTitle());
         }
     }
 
@@ -170,9 +169,9 @@ public final class TestXWPFSDT {
         //to our test suite.
         try (XWPFDocument doc =XWPFTestDataSamples.openSampleDocument("Bug62859.docx")) {
             List<XWPFAbstractSDT> sdts = extractAllSDTs(doc);
-            assertEquals(1, sdts.size());
-            assertEquals("", sdts.get(0).getTag());
-            assertEquals("", sdts.get(0).getTitle());
+            Assertions.assertEquals(1, sdts.size());
+            Assertions.assertEquals(null, sdts.get(0).getSdtPr().getTag());
+            Assertions.assertEquals(null, sdts.get(0).getSdtPr().getTitle());
         }
     }
 
@@ -202,15 +201,15 @@ public final class TestXWPFSDT {
     private List<XWPFAbstractSDT> extractSDTsFromBodyElements(List<IBodyElement> elements) {
         List<XWPFAbstractSDT> sdts = new ArrayList<>();
         for (IBodyElement e : elements) {
-            if (e instanceof XWPFSDT) {
-                XWPFSDT sdt = (XWPFSDT) e;
+            if (e instanceof XWPFSDTBlock) {
+                XWPFSDTBlock sdt = (XWPFSDTBlock) e;
                 sdts.add(sdt);
             } else if (e instanceof XWPFParagraph) {
 
                 XWPFParagraph p = (XWPFParagraph) e;
                 for (IRunElement e2 : p.getIRuns()) {
-                    if (e2 instanceof XWPFSDT) {
-                        XWPFSDT sdt = (XWPFSDT) e2;
+                    if (e2 instanceof XWPFSDTRun) {
+                        XWPFSDTRun sdt = (XWPFSDTRun) e2;
                         sdts.add(sdt);
                     }
                 }
