@@ -258,13 +258,13 @@ subprojects {
 
         manifest {
             attributes(
-                    'Specification-Title': 'Apache POI',
-                    'Specification-Version': project.version,
-                    'Specification-Vendor': 'The Apache Software Foundation',
-                    'Implementation-Title': 'Apache POI',
-                    'Implementation-Version': project.version,
-                    'Implementation-Vendor': 'org.apache.poi',
-                    'Implementation-Vendor-Id': 'The Apache Software Foundation'
+                'Specification-Title': 'Apache POI',
+                'Specification-Version': project.version,
+                'Specification-Vendor': 'The Apache Software Foundation',
+                'Implementation-Title': 'Apache POI',
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': 'org.apache.poi',
+                'Implementation-Vendor-Id': 'The Apache Software Foundation'
             )
         }
     }
@@ -304,11 +304,11 @@ subprojects {
 
         // Specifying the local via system properties did not work, so we set them this way
         jvmArgs << [
-                '-Djava.awt.headless=true',
-                '-Djavax.xml.stream.XMLInputFactory=com.sun.xml.internal.stream.XMLInputFactoryImpl',
-                "-Dversion.id=${project.version}",
-                '-ea',
-                // -Xjit:verbose={compileStart|compileEnd},vlog=build/jit.log${no.jit.sherlock}   ... if ${isIBMVM}
+            '-Djava.awt.headless=true',
+            '-Djavax.xml.stream.XMLInputFactory=com.sun.xml.internal.stream.XMLInputFactoryImpl',
+            "-Dversion.id=${project.version}",
+            '-ea',
+            // -Xjit:verbose={compileStart|compileEnd},vlog=build/jit.log${no.jit.sherlock}   ... if ${isIBMVM}
         ]
 
         // detect if running on Jenkins/CI
@@ -318,27 +318,27 @@ subprojects {
             System.out.println("Run with reduced parallelism for CI build");
 
             jvmArgs += [
-                    // Strictly serial
-                    // '-Djunit.jupiter.execution.parallel.enabled=false',
+                // Strictly serial
+                // '-Djunit.jupiter.execution.parallel.enabled=false',
 
-                    // OR parallel on 2 threads
-                    '-Djunit.jupiter.execution.parallel.config.strategy=fixed',
-                    '-Djunit.jupiter.execution.parallel.config.fixed.parallelism=2'
+                // OR parallel on 2 threads
+                '-Djunit.jupiter.execution.parallel.config.strategy=fixed',
+                '-Djunit.jupiter.execution.parallel.config.fixed.parallelism=2'
             ]
             maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
         } else {
             jvmArgs += [
-                    '-Djunit.jupiter.execution.parallel.enabled=true',
-                    '-Djunit.jupiter.execution.parallel.config.strategy=dynamic',
+                '-Djunit.jupiter.execution.parallel.enabled=true',
+                '-Djunit.jupiter.execution.parallel.config.strategy=dynamic',
 
-                    // this setting breaks the test builds, do not use it!
-                    //'-Djunit.jupiter.execution.parallel.mode.default=concurrent'
+                // this setting breaks the test builds, do not use it!
+                //'-Djunit.jupiter.execution.parallel.mode.default=concurrent'
             ]
 
-            // Explicitly defining the maxParallelForks was always slower than not setting it
-            // So we leave this to Gradle itself, which seems to be very smart
-            // maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-            // maxParallelForks = Math.max( Runtime.runtime.availableProcessors() - 1, 1 )
+             // Explicitly defining the maxParallelForks was always slower than not setting it
+             // So we leave this to Gradle itself, which seems to be very smart
+             // maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+             // maxParallelForks = Math.max( Runtime.runtime.availableProcessors() - 1, 1 )
         }
 
         // show standard out and standard error of the test JVM(s) on the console
@@ -362,32 +362,32 @@ subprojects {
                 // some options were removed in JDK 18
                 if (JavaVersion.current().ordinal() < JavaVersion.VERSION_18.ordinal()) {
                     jvmArgs += [
-                            '--illegal-access=warn',
+                        '--illegal-access=warn',
                     ]
                 } else {
                     System.out.println("Configuring for JDK 18 or higher")
                 }
 
                 jvmArgs += [
-                        // see https://github.com/java9-modularity/gradle-modules-plugin/issues/97
-                        // opposed to the recommendation there, it doesn't work to add ... to the dependencies
-                        // testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.7.1'
-                        // gradles gradle-worker.jar is still not a JPMS module and thus runs as unnamed module
-                        '--add-exports','org.junit.platform.commons/org.junit.platform.commons.util=org.apache.poi.poi',
-                        '--add-exports','org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED',
-                        '--add-exports','org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED',
+                    // see https://github.com/java9-modularity/gradle-modules-plugin/issues/97
+                    // opposed to the recommendation there, it doesn't work to add ... to the dependencies
+                    // testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.7.1'
+                    // gradles gradle-worker.jar is still not a JPMS module and thus runs as unnamed module
+                    '--add-exports','org.junit.platform.commons/org.junit.platform.commons.util=org.apache.poi.poi',
+                    '--add-exports','org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED',
+                    '--add-exports','org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED',
 
-                        '-Dsun.reflect.debugModuleAccessChecks=true',
-                        '-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true',
+                    '-Dsun.reflect.debugModuleAccessChecks=true',
+                    '-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true',
                 ]
             }
         }
 
         jacoco {
             excludes = [
-                    // this is necessary to make JaCoCo work with JDK 18 for now
-                    'sun/**',
-                    'javax/**',
+                // this is necessary to make JaCoCo work with JDK 18 for now
+                'sun/**',
+                'javax/**',
             ]
         }
     }
@@ -519,42 +519,42 @@ rat {
 
     // include all directories which contain files that are included in releases
     includes = [
-            "poi-examples/**",
-            "poi-excelant/**",
-            "poi-integration/**",
-            "legal/**",
-            "poi/**",
-            "maven/**",
-            "poi-ooxml/**",
-            "poi-ooxml-full/**",
-            "poi-ooxml-lite/**",
-            "poi-ooxml-lite-agent/**",
-            "osgi/**",
-            "poi-scratchpad/**",
-            "src/**",
-            //    "sonar/**",
-            "build.*"
+        "poi-examples/**",
+        "poi-excelant/**",
+        "poi-integration/**",
+        "legal/**",
+        "poi/**",
+        "maven/**",
+        "poi-ooxml/**",
+        "poi-ooxml-full/**",
+        "poi-ooxml-lite/**",
+        "poi-ooxml-lite-agent/**",
+        "osgi/**",
+        "poi-scratchpad/**",
+        "src/**",
+    //    "sonar/**",
+        "build.*"
     ]
 
     // List of Gradle exclude directives, defaults to ['**/.gradle/**']
     //excludes.add("main/java/org/apache/poi/**/*-chart-data.txt")
     excludes = [
-            "build.javacheck.xml",
-            "**/build/**",
-            "**/out/**",
-            "**/*.iml",
-            "**/*.log",
-            "**/gradle-wrapper.properties",
-            "**/main/java/org/apache/poi/**/*-chart-data.txt",
-            "poi/src/main/resources/org/apache/poi/sl/draw/geom/presetShapeDefinitions.xml",
-            "poi-ooxml/src/main/resources/org/apache/poi/xslf/usermodel/notesMaster.xml",
-            "poi-ooxml/src/main/resources/org/apache/poi/xssf/usermodel/presetTableStyles.xml",
-            "poi-ooxml-full/src/main/xmlschema/org/apache/poi/schemas/XAdES*.xsd",
-            "poi-ooxml-full/src/main/xmlschema/org/apache/poi/schemas/xmldsig-core-schema.xsd",
-            "poi-ooxml-full/src/main/xmlschema/org/apache/poi/xdgf/visio.xsd",
-            "osgi/README.md",
-            // ignore svn conflict artifacts
-            "**/module-info.*"
+        "build.javacheck.xml",
+        "**/build/**",
+        "**/out/**",
+        "**/*.iml",
+        "**/*.log",
+        "**/gradle-wrapper.properties",
+        "**/main/java/org/apache/poi/**/*-chart-data.txt",
+        "poi/src/main/resources/org/apache/poi/sl/draw/geom/presetShapeDefinitions.xml",
+        "poi-ooxml/src/main/resources/org/apache/poi/xslf/usermodel/notesMaster.xml",
+        "poi-ooxml/src/main/resources/org/apache/poi/xssf/usermodel/presetTableStyles.xml",
+        "poi-ooxml-full/src/main/xmlschema/org/apache/poi/schemas/XAdES*.xsd",
+        "poi-ooxml-full/src/main/xmlschema/org/apache/poi/schemas/xmldsig-core-schema.xsd",
+        "poi-ooxml-full/src/main/xmlschema/org/apache/poi/xdgf/visio.xsd",
+        "osgi/README.md",
+        // ignore svn conflict artifacts
+        "**/module-info.*"
     ]
 
     /*
@@ -584,9 +584,9 @@ task replaceVersion() {
 
     var version = subprojects[0].version
     var tokens = [
-            [ 'osgi', 'pom.xml', '(packaging>\\n\\s*<version>)[0-9.]+(?:-SNAPSHOT|-RC\\d+)?', "\\1${version}" ],
-            [ 'osgi', 'pom.xml', '(<poi.version>)[0-9.]+(?:-SNAPSHOT|-RC\\d+)?', "\\1${version}" ]
-            // [ '.', 'build.gradle', ' version = \'[0-9.]+(?:-SNAPSHOT)?\'', " version = '${version}'" ]
+        [ 'osgi', 'pom.xml', '(packaging>\\n\\s*<version>)[0-9.]+(?:-SNAPSHOT|-RC\\d+)?', "\\1${version}" ],
+        [ 'osgi', 'pom.xml', '(<poi.version>)[0-9.]+(?:-SNAPSHOT|-RC\\d+)?', "\\1${version}" ]
+        // [ '.', 'build.gradle', ' version = \'[0-9.]+(?:-SNAPSHOT)?\'', " version = '${version}'" ]
     ]
 
     doLast {
@@ -728,20 +728,20 @@ task soLinkCheck() {
 }
 
 var srcDep = [
-        ':poi:cacheJava9',
-        ':poi:cacheTest9',
-        ':poi-ooxml-full:cacheJava9',
-        ':poi-ooxml-lite-agent:cacheJava9',
-        ':poi-ooxml:cacheJava9',
-        ':poi-ooxml:cacheTest9',
-        ':poi-scratchpad:cacheJava9',
-        ':poi-scratchpad:cacheTest9',
-        ':poi-excelant:cacheJava9',
-        ':poi-excelant:cacheTest9',
-        ':poi-examples:cacheJava9',
-        ':poi-integration:cacheTest9',
-        ':poi-ooxml-lite:cacheJava9',
-        ':poi-ooxml-lite:generateModuleInfo'
+    ':poi:cacheJava9',
+    ':poi:cacheTest9',
+    ':poi-ooxml-full:cacheJava9',
+    ':poi-ooxml-lite-agent:cacheJava9',
+    ':poi-ooxml:cacheJava9',
+    ':poi-ooxml:cacheTest9',
+    ':poi-scratchpad:cacheJava9',
+    ':poi-scratchpad:cacheTest9',
+    ':poi-excelant:cacheJava9',
+    ':poi-excelant:cacheTest9',
+    ':poi-examples:cacheJava9',
+    ':poi-integration:cacheTest9',
+    ':poi-ooxml-lite:cacheJava9',
+    ':poi-ooxml-lite:generateModuleInfo'
 ]
 
 srcDistTar.dependsOn srcDep
