@@ -449,103 +449,104 @@ class TestDataFormatter {
      * Test that we can handle elapsed time,
      *  eg formatting 1 day 4 hours as 28 hours
      */
-//    @Test
-//    void testElapsedTime() {
-//        DataFormatter dfUS = new DataFormatter(Locale.US);
-//
-//        double hour = 1.0/24.0;
-//
-//        assertEquals("01:00", dfUS.formatRawCellContents(1*hour, -1, "hh:mm"));
-//        assertEquals("05:00", dfUS.formatRawCellContents(5*hour, -1, "hh:mm"));
-//        assertEquals("20:00", dfUS.formatRawCellContents(20*hour, -1, "hh:mm"));
-//        assertEquals("23:00", dfUS.formatRawCellContents(23*hour, -1, "hh:mm"));
-//        assertEquals("00:00", dfUS.formatRawCellContents(24*hour, -1, "hh:mm"));
-//        assertEquals("02:00", dfUS.formatRawCellContents(26*hour, -1, "hh:mm"));
-//        assertEquals("20:00", dfUS.formatRawCellContents(44*hour, -1, "hh:mm"));
-//        assertEquals("02:00", dfUS.formatRawCellContents(50*hour, -1, "hh:mm"));
-//
-//        assertEquals("01:00", dfUS.formatRawCellContents(1*hour, -1, "[hh]:mm"));
-//        assertEquals("05:00", dfUS.formatRawCellContents(5*hour, -1, "[hh]:mm"));
-//        assertEquals("20:00", dfUS.formatRawCellContents(20*hour, -1, "[hh]:mm"));
-//        assertEquals("23:00", dfUS.formatRawCellContents(23*hour, -1, "[hh]:mm"));
-//        assertEquals("24:00", dfUS.formatRawCellContents(24*hour, -1, "[hh]:mm"));
-//        assertEquals("26:00", dfUS.formatRawCellContents(26*hour, -1, "[hh]:mm"));
-//        assertEquals("44:00", dfUS.formatRawCellContents(44*hour, -1, "[hh]:mm"));
-//        assertEquals("50:00", dfUS.formatRawCellContents(50*hour, -1, "[hh]:mm"));
-//
-//        assertEquals("01", dfUS.formatRawCellContents(1*hour, -1, "[hh]"));
-//        assertEquals("05", dfUS.formatRawCellContents(5*hour, -1, "[hh]"));
-//        assertEquals("20", dfUS.formatRawCellContents(20*hour, -1, "[hh]"));
-//        assertEquals("23", dfUS.formatRawCellContents(23*hour, -1, "[hh]"));
-//        assertEquals("24", dfUS.formatRawCellContents(24*hour, -1, "[hh]"));
-//        assertEquals("26", dfUS.formatRawCellContents(26*hour, -1, "[hh]"));
-//        assertEquals("44", dfUS.formatRawCellContents(44*hour, -1, "[hh]"));
-//        assertEquals("50", dfUS.formatRawCellContents(50*hour, -1, "[hh]"));
-//
-//        double minute = 1.0/24.0/60.0;
-//        assertEquals("01:00", dfUS.formatRawCellContents(1*minute, -1, "[mm]:ss"));
-//        assertEquals("05:00", dfUS.formatRawCellContents(5*minute, -1, "[mm]:ss"));
-//        assertEquals("20:00", dfUS.formatRawCellContents(20*minute, -1, "[mm]:ss"));
-//        assertEquals("23:00", dfUS.formatRawCellContents(23*minute, -1, "[mm]:ss"));
-//        assertEquals("24:00", dfUS.formatRawCellContents(24*minute, -1, "[mm]:ss"));
-//        assertEquals("26:00", dfUS.formatRawCellContents(26*minute, -1, "[mm]:ss"));
-//        assertEquals("44:00", dfUS.formatRawCellContents(44*minute, -1, "[mm]:ss"));
-//        assertEquals("50:00", dfUS.formatRawCellContents(50*minute, -1, "[mm]:ss"));
-//        assertEquals("59:00", dfUS.formatRawCellContents(59*minute, -1, "[mm]:ss"));
-//        assertEquals("60:00", dfUS.formatRawCellContents(60*minute, -1, "[mm]:ss"));
-//        assertEquals("61:00", dfUS.formatRawCellContents(61*minute, -1, "[mm]:ss"));
-//        assertEquals("119:00", dfUS.formatRawCellContents(119*minute, -1, "[mm]:ss"));
-//        assertEquals("120:00", dfUS.formatRawCellContents(120*minute, -1, "[mm]:ss"));
-//        assertEquals("121:00", dfUS.formatRawCellContents(121*minute, -1, "[mm]:ss"));
-//
-//        assertEquals("01", dfUS.formatRawCellContents(1*minute, -1, "[mm]"));
-//        assertEquals("05", dfUS.formatRawCellContents(5*minute, -1, "[mm]"));
-//        assertEquals("20", dfUS.formatRawCellContents(20*minute, -1, "[mm]"));
-//        assertEquals("23", dfUS.formatRawCellContents(23*minute, -1, "[mm]"));
-//        assertEquals("24", dfUS.formatRawCellContents(24*minute, -1, "[mm]"));
-//        assertEquals("26", dfUS.formatRawCellContents(26*minute, -1, "[mm]"));
-//        assertEquals("44", dfUS.formatRawCellContents(44*minute, -1, "[mm]"));
-//        assertEquals("50", dfUS.formatRawCellContents(50*minute, -1, "[mm]"));
-//        assertEquals("59", dfUS.formatRawCellContents(59*minute, -1, "[mm]"));
-//        assertEquals("60", dfUS.formatRawCellContents(60*minute, -1, "[mm]"));
-//        assertEquals("61", dfUS.formatRawCellContents(61*minute, -1, "[mm]"));
-//        assertEquals("119", dfUS.formatRawCellContents(119*minute, -1, "[mm]"));
-//        assertEquals("120", dfUS.formatRawCellContents(120*minute, -1, "[mm]"));
-//        assertEquals("121", dfUS.formatRawCellContents(121*minute, -1, "[mm]"));
-//
-//        double second = 1.0/24.0/60.0/60.0;
-//        assertEquals("86400", dfUS.formatRawCellContents(86400*second, -1, "[ss]"));
-//        assertEquals("01", dfUS.formatRawCellContents(1*second, -1, "[ss]"));
-//        assertEquals("05", dfUS.formatRawCellContents(5*second, -1, "[ss]"));
-//        assertEquals("20", dfUS.formatRawCellContents(20*second, -1, "[ss]"));
-//        assertEquals("23", dfUS.formatRawCellContents(23*second, -1, "[ss]"));
-//        assertEquals("24", dfUS.formatRawCellContents(24*second, -1, "[ss]"));
-//        assertEquals("26", dfUS.formatRawCellContents(26*second, -1, "[ss]"));
-//        assertEquals("44", dfUS.formatRawCellContents(44*second, -1, "[ss]"));
-//        assertEquals("50", dfUS.formatRawCellContents(50*second, -1, "[ss]"));
-//        assertEquals("59", dfUS.formatRawCellContents(59*second, -1, "[ss]"));
-//        assertEquals("60", dfUS.formatRawCellContents(60*second, -1, "[ss]"));
-//        assertEquals("61", dfUS.formatRawCellContents(61*second, -1, "[ss]"));
-//        assertEquals("119", dfUS.formatRawCellContents(119*second, -1, "[ss]"));
-//        assertEquals("120", dfUS.formatRawCellContents(120*second, -1, "[ss]"));
-//        assertEquals("121", dfUS.formatRawCellContents(121*second, -1, "[ss]"));
-//
-//        assertEquals("27:18:08", dfUS.formatRawCellContents(1.1376, -1, "[h]:mm:ss"));
-//        assertEquals("28:48:00", dfUS.formatRawCellContents(1.2, -1,  "[h]:mm:ss"));
-//        assertEquals("29:31:12", dfUS.formatRawCellContents(1.23, -1, "[h]:mm:ss"));
-//        assertEquals("31:26:24", dfUS.formatRawCellContents(1.31, -1, "[h]:mm:ss"));
-//
-//        assertEquals("27:18:08", dfUS.formatRawCellContents(1.1376, -1, "[hh]:mm:ss"));
-//        assertEquals("28:48:00", dfUS.formatRawCellContents(1.2, -1,  "[hh]:mm:ss"));
-//        assertEquals("29:31:12", dfUS.formatRawCellContents(1.23, -1, "[hh]:mm:ss"));
-//        assertEquals("31:26:24", dfUS.formatRawCellContents(1.31, -1, "[hh]:mm:ss"));
-//
-//        assertEquals("57:07.2", dfUS.formatRawCellContents(.123, -1, "mm:ss.0;@"));
-//        assertEquals("57:41.8", dfUS.formatRawCellContents(.1234, -1, "mm:ss.0;@"));
-//        assertEquals("57:41.76", dfUS.formatRawCellContents(.1234, -1, "mm:ss.00;@"));
-//        assertEquals("57:41.760", dfUS.formatRawCellContents(.1234, -1, "mm:ss.000;@"));
-//        assertEquals("24:00.0", dfUS.formatRawCellContents(123456.6, -1, "mm:ss.0"));
-//    }
+    @Test
+    @Disabled
+    void testElapsedTime() {
+        DataFormatter dfUS = new DataFormatter(Locale.US);
+
+        double hour = 1.0/24.0;
+
+        assertEquals("01:00", dfUS.formatRawCellContents(1*hour, -1, "hh:mm"));
+        assertEquals("05:00", dfUS.formatRawCellContents(5*hour, -1, "hh:mm"));
+        assertEquals("20:00", dfUS.formatRawCellContents(20*hour, -1, "hh:mm"));
+        assertEquals("23:00", dfUS.formatRawCellContents(23*hour, -1, "hh:mm"));
+        assertEquals("00:00", dfUS.formatRawCellContents(24*hour, -1, "hh:mm"));
+        assertEquals("02:00", dfUS.formatRawCellContents(26*hour, -1, "hh:mm"));
+        assertEquals("20:00", dfUS.formatRawCellContents(44*hour, -1, "hh:mm"));
+        assertEquals("02:00", dfUS.formatRawCellContents(50*hour, -1, "hh:mm"));
+
+        assertEquals("01:00", dfUS.formatRawCellContents(1*hour, -1, "[hh]:mm"));
+        assertEquals("05:00", dfUS.formatRawCellContents(5*hour, -1, "[hh]:mm"));
+        assertEquals("20:00", dfUS.formatRawCellContents(20*hour, -1, "[hh]:mm"));
+        assertEquals("23:00", dfUS.formatRawCellContents(23*hour, -1, "[hh]:mm"));
+        assertEquals("24:00", dfUS.formatRawCellContents(24*hour, -1, "[hh]:mm"));
+        assertEquals("26:00", dfUS.formatRawCellContents(26*hour, -1, "[hh]:mm"));
+        assertEquals("44:00", dfUS.formatRawCellContents(44*hour, -1, "[hh]:mm"));
+        assertEquals("50:00", dfUS.formatRawCellContents(50*hour, -1, "[hh]:mm"));
+
+        assertEquals("01", dfUS.formatRawCellContents(1*hour, -1, "[hh]"));
+        assertEquals("05", dfUS.formatRawCellContents(5*hour, -1, "[hh]"));
+        assertEquals("20", dfUS.formatRawCellContents(20*hour, -1, "[hh]"));
+        assertEquals("23", dfUS.formatRawCellContents(23*hour, -1, "[hh]"));
+        assertEquals("24", dfUS.formatRawCellContents(24*hour, -1, "[hh]"));
+        assertEquals("26", dfUS.formatRawCellContents(26*hour, -1, "[hh]"));
+        assertEquals("44", dfUS.formatRawCellContents(44*hour, -1, "[hh]"));
+        assertEquals("50", dfUS.formatRawCellContents(50*hour, -1, "[hh]"));
+
+        double minute = 1.0/24.0/60.0;
+        assertEquals("01:00", dfUS.formatRawCellContents(1*minute, -1, "[mm]:ss"));
+        assertEquals("05:00", dfUS.formatRawCellContents(5*minute, -1, "[mm]:ss"));
+        assertEquals("20:00", dfUS.formatRawCellContents(20*minute, -1, "[mm]:ss"));
+        assertEquals("23:00", dfUS.formatRawCellContents(23*minute, -1, "[mm]:ss"));
+        assertEquals("24:00", dfUS.formatRawCellContents(24*minute, -1, "[mm]:ss"));
+        assertEquals("26:00", dfUS.formatRawCellContents(26*minute, -1, "[mm]:ss"));
+        assertEquals("44:00", dfUS.formatRawCellContents(44*minute, -1, "[mm]:ss"));
+        assertEquals("50:00", dfUS.formatRawCellContents(50*minute, -1, "[mm]:ss"));
+        assertEquals("59:00", dfUS.formatRawCellContents(59*minute, -1, "[mm]:ss"));
+        assertEquals("60:00", dfUS.formatRawCellContents(60*minute, -1, "[mm]:ss"));
+        assertEquals("61:00", dfUS.formatRawCellContents(61*minute, -1, "[mm]:ss"));
+        assertEquals("119:00", dfUS.formatRawCellContents(119*minute, -1, "[mm]:ss"));
+        assertEquals("120:00", dfUS.formatRawCellContents(120*minute, -1, "[mm]:ss"));
+        assertEquals("121:00", dfUS.formatRawCellContents(121*minute, -1, "[mm]:ss"));
+
+        assertEquals("01", dfUS.formatRawCellContents(1*minute, -1, "[mm]"));
+        assertEquals("05", dfUS.formatRawCellContents(5*minute, -1, "[mm]"));
+        assertEquals("20", dfUS.formatRawCellContents(20*minute, -1, "[mm]"));
+        assertEquals("23", dfUS.formatRawCellContents(23*minute, -1, "[mm]"));
+        assertEquals("24", dfUS.formatRawCellContents(24*minute, -1, "[mm]"));
+        assertEquals("26", dfUS.formatRawCellContents(26*minute, -1, "[mm]"));
+        assertEquals("44", dfUS.formatRawCellContents(44*minute, -1, "[mm]"));
+        assertEquals("50", dfUS.formatRawCellContents(50*minute, -1, "[mm]"));
+        assertEquals("59", dfUS.formatRawCellContents(59*minute, -1, "[mm]"));
+        assertEquals("60", dfUS.formatRawCellContents(60*minute, -1, "[mm]"));
+        assertEquals("61", dfUS.formatRawCellContents(61*minute, -1, "[mm]"));
+        assertEquals("119", dfUS.formatRawCellContents(119*minute, -1, "[mm]"));
+        assertEquals("120", dfUS.formatRawCellContents(120*minute, -1, "[mm]"));
+        assertEquals("121", dfUS.formatRawCellContents(121*minute, -1, "[mm]"));
+
+        double second = 1.0/24.0/60.0/60.0;
+        assertEquals("86400", dfUS.formatRawCellContents(86400*second, -1, "[ss]"));
+        assertEquals("01", dfUS.formatRawCellContents(1*second, -1, "[ss]"));
+        assertEquals("05", dfUS.formatRawCellContents(5*second, -1, "[ss]"));
+        assertEquals("20", dfUS.formatRawCellContents(20*second, -1, "[ss]"));
+        assertEquals("23", dfUS.formatRawCellContents(23*second, -1, "[ss]"));
+        assertEquals("24", dfUS.formatRawCellContents(24*second, -1, "[ss]"));
+        assertEquals("26", dfUS.formatRawCellContents(26*second, -1, "[ss]"));
+        assertEquals("44", dfUS.formatRawCellContents(44*second, -1, "[ss]"));
+        assertEquals("50", dfUS.formatRawCellContents(50*second, -1, "[ss]"));
+        assertEquals("59", dfUS.formatRawCellContents(59*second, -1, "[ss]"));
+        assertEquals("60", dfUS.formatRawCellContents(60*second, -1, "[ss]"));
+        assertEquals("61", dfUS.formatRawCellContents(61*second, -1, "[ss]"));
+        assertEquals("119", dfUS.formatRawCellContents(119*second, -1, "[ss]"));
+        assertEquals("120", dfUS.formatRawCellContents(120*second, -1, "[ss]"));
+        assertEquals("121", dfUS.formatRawCellContents(121*second, -1, "[ss]"));
+
+        assertEquals("27:18:08", dfUS.formatRawCellContents(1.1376, -1, "[h]:mm:ss"));
+        assertEquals("28:48:00", dfUS.formatRawCellContents(1.2, -1,  "[h]:mm:ss"));
+        assertEquals("29:31:12", dfUS.formatRawCellContents(1.23, -1, "[h]:mm:ss"));
+        assertEquals("31:26:24", dfUS.formatRawCellContents(1.31, -1, "[h]:mm:ss"));
+
+        assertEquals("27:18:08", dfUS.formatRawCellContents(1.1376, -1, "[hh]:mm:ss"));
+        assertEquals("28:48:00", dfUS.formatRawCellContents(1.2, -1,  "[hh]:mm:ss"));
+        assertEquals("29:31:12", dfUS.formatRawCellContents(1.23, -1, "[hh]:mm:ss"));
+        assertEquals("31:26:24", dfUS.formatRawCellContents(1.31, -1, "[hh]:mm:ss"));
+
+        assertEquals("57:07.2", dfUS.formatRawCellContents(.123, -1, "mm:ss.0;@"));
+        assertEquals("57:41.8", dfUS.formatRawCellContents(.1234, -1, "mm:ss.0;@"));
+        assertEquals("57:41.76", dfUS.formatRawCellContents(.1234, -1, "mm:ss.00;@"));
+        assertEquals("57:41.760", dfUS.formatRawCellContents(.1234, -1, "mm:ss.000;@"));
+        assertEquals("24:00.0", dfUS.formatRawCellContents(123456.6, -1, "mm:ss.0"));
+    }
 
     @Test
     void testDateWindowing() {
