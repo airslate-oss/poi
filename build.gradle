@@ -113,6 +113,7 @@ subprojects {
     apply plugin: 'com.github.spotbugs'
 
     version = '5.2.1-ASP-13774-build-SNAPSHOT'
+    group 'org.apache.poi'
     ext {
         bouncyCastleVersion = '1.70'
         commonsCodecVersion = '1.15'
@@ -238,8 +239,8 @@ subprojects {
         publish {
             repository {
                 repoKey = 'maven-thirdparty'
-                username = 'username'
-                password = 'password'
+                username = System.getenv('MVN_USER')
+                password = System.getenv('MVN_PASS')
             }
 
             defaults {
@@ -554,7 +555,19 @@ rat {
         "poi-ooxml-full/src/main/xmlschema/org/apache/poi/xdgf/visio.xsd",
         "osgi/README.md",
         // ignore svn conflict artifacts
-        "**/module-info.*"
+        "**/module-info.*",
+        // fork files
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentRun.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentsBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentsRun.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTContentBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTContentRun.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTPr.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTRun.java",
+        "poi-ooxml/src/test/java/org/apache/poi/xwpf/usermodel/TestXWPFSDTBlock.java",
+        "poi-ooxml/src/test/java/org/apache/poi/xwpf/usermodel/TestXWPFSDTRun.java",
     ]
 
     /*
