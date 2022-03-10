@@ -17,6 +17,8 @@
 package org.apache.poi.xwpf.usermodel;
 
 import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.ss.formula.functions.T;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtContentRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtPr;
 
 /**
@@ -26,30 +28,15 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtPr;
  * <p>
  * These classes have so far been built only for read-only processing.
  */
-public abstract class XWPFAbstractSDT implements ISDTContents {
-    private final String title;
-    private final String tag;
-    private final IBody part;
+public abstract class XWPFAbstractSDT {
+    protected XWPFSDTPr sdtPr;
 
-    public XWPFAbstractSDT(CTSdtPr pr, IBody part) {
-        title = (pr != null && pr.isSetAlias()) ? pr.getAlias().getVal() : "";
-        tag = (pr != null && pr.isSetTag()) ? pr.getTag().getVal() : "";
-        this.part = part;
-
+    public XWPFAbstractSDT(CTSdtPr sdtPr) {
+        this.sdtPr = new XWPFSDTPr(sdtPr);
     }
 
-    /**
-     * @return first SDT Title
-     */
-    public String getTitle() {
-        return title;
-    }
-
-    /**
-     * @return first SDT Tag
-     */
-    public String getTag() {
-        return tag;
+    public XWPFSDTPr getSdtPr() {
+        return this.sdtPr;
     }
 
     /**
@@ -58,34 +45,12 @@ public abstract class XWPFAbstractSDT implements ISDTContents {
     public abstract ISDTContent getContent();
 
     /**
-     * @return null
+     * @return create Properties for SDT
      */
-    public IBody getBody() {
-        return null;
-    }
+    public abstract XWPFSDTPr createSdtPr();
 
     /**
-     * @return document part
+     * @return create Properties for SDT
      */
-    public POIXMLDocumentPart getPart() {
-        return part.getPart();
-    }
-
-    /**
-     * @return partType
-     */
-    public BodyType getPartType() {
-        return BodyType.CONTENTCONTROL;
-    }
-
-    /**
-     * @return element type
-     */
-    public BodyElementType getElementType() {
-        return BodyElementType.CONTENTCONTROL;
-    }
-
-    public XWPFDocument getDocument() {
-        return part.getXWPFDocument();
-    }
+    public abstract ISDTContent createSdtContent();
 }

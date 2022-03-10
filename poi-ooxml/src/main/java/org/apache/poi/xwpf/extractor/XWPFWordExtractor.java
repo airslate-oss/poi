@@ -25,20 +25,7 @@ import org.apache.poi.ooxml.extractor.POIXMLTextExtractor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.model.XWPFCommentsDecorator;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
-import org.apache.poi.xwpf.usermodel.IBodyElement;
-import org.apache.poi.xwpf.usermodel.ICell;
-import org.apache.poi.xwpf.usermodel.IRunElement;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFHyperlink;
-import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRelation;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFSDT;
-import org.apache.poi.xwpf.usermodel.XWPFSDTCell;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
 
 /**
@@ -108,8 +95,8 @@ public class XWPFWordExtractor implements POIXMLTextExtractor {
             appendParagraphText(text, (XWPFParagraph) e);
         } else if (e instanceof XWPFTable) {
             appendTableText(text, (XWPFTable) e);
-        } else if (e instanceof XWPFSDT) {
-            text.append(((XWPFSDT) e).getContent().getText());
+        } else if (e instanceof XWPFSDTBlock) {
+            text.append(((XWPFSDTBlock) e).getContent().getText());
         }
     }
 
@@ -127,8 +114,8 @@ public class XWPFWordExtractor implements POIXMLTextExtractor {
         }
 
         for (IRunElement run : paragraph.getIRuns()) {
-            if (run instanceof XWPFSDT) {
-                text.append(((XWPFSDT) run).getContent().getText());
+            if (run instanceof XWPFSDTRun) {
+                text.append(((XWPFSDTRun) run).getContent().getText());
             } else if (! concatenatePhoneticRuns && run instanceof XWPFRun) {
                 text.append(((XWPFRun)run).text());
             } else {

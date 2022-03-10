@@ -75,7 +75,7 @@ import org.xml.sax.SAXException;
 /**
  * XWPFRun object defines a region of text with a common set of properties
  */
-public class XWPFRun implements ISDTContents, IRunElement, CharacterRun {
+public class XWPFRun implements ISDTContentsRun, IRunElement, CharacterRun {
     private final CTR run;
     private final String pictureText;
     private final IRunBody parent;

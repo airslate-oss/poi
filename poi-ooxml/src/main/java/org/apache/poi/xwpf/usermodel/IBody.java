@@ -24,6 +24,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTc;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtBlock;
 
 /**
  * <p>An IBody represents the different parts of the document which
@@ -71,6 +72,11 @@ public interface IBody {
     List<XWPFTable> getTables();
 
     /**
+     * Return the Sdt Blocks
+     */
+    public List<XWPFSDTBlock> getSdtBlocks();
+
+    /**
      * Returns the paragraph corresponding to the provided {@link CTP}.
      *
      * @param p is instance of CTP and is searching for an XWPFParagraph
@@ -85,6 +91,15 @@ public interface IBody {
      * if there is no corresponding {@link XWPFTable} the method will return null
      */
     XWPFTable getTable(CTTbl ctTable);
+
+    /**
+     * if there is a corresponding {@link XWPFSDTBlock} of the parameter ctSdtBlock in the
+     * Content Controls list of this header, the method will return this sdt block
+     * if there is no corresponding {@link XWPFSDTBlock} the method will return null
+     *
+     * @param ctSdtBlock
+     */
+    public XWPFSDTBlock getSdtBlock(CTSdtBlock ctSdtBlock);
 
     /**
      * Returns the paragraph that of position pos
@@ -107,6 +122,13 @@ public interface IBody {
     XWPFTable insertNewTbl(XmlCursor cursor);
 
     /**
+     * inserts a new SdtBlock at the cursor position.
+     *
+     * @param cursor
+     */
+    public XWPFSDTBlock insertNewSdtBlock(XmlCursor cursor);
+
+    /**
      * inserts a new Table at position pos
      */
     void insertTable(int pos, XWPFTable table);
@@ -115,6 +137,13 @@ public interface IBody {
      * returns the TableCell to which the Table belongs
      */
     XWPFTableCell getTableCell(CTTc cell);
+
+    /**
+     * Remove element from BodyElements
+     * @param pos
+     * @return
+     */
+    public boolean removeBodyElement(int pos);
 
     /**
      * Return XWPFDocument

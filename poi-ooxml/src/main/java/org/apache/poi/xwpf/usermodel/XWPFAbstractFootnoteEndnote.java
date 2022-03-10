@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Spliterator;
 
 import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.util.Internal;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
@@ -51,6 +52,7 @@ public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParag
     protected CTFtnEdn ctFtnEdn;
     protected XWPFAbstractFootnotesEndnotes footnotes;
     protected XWPFDocument document;
+    private List<XWPFSDTBlock> sdtBlocks = new ArrayList<>();
 
     public XWPFAbstractFootnoteEndnote() {
         super();
@@ -88,7 +90,7 @@ public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParag
                     bodyElements.add(t);
                     tables.add(t);
                 } else if (o instanceof CTSdtBlock) {
-                    XWPFSDT c = new XWPFSDT((CTSdtBlock) o, this);
+                    XWPFSDTBlock c = new XWPFSDTBlock((CTSdtBlock) o, this);
                     bodyElements.add(c);
                 }
 
@@ -526,4 +528,14 @@ public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParag
         return table;
     }
 
+    /**
+     * Unimplemented method
+     *
+     * @param pos
+     * @return
+     */
+    @Override
+    public boolean removeBodyElement(int pos) {
+        throw new UnsupportedOperationException();
+    }
 }
