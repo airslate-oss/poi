@@ -262,13 +262,29 @@ subprojects {
         publications {
             mavenJava(MavenPublication) {
                 from components.java
+
+                pom {
+                    packaging = 'jar'
+                    withXml {
+                        def r = asElement()
+                        def doc = r.getOwnerDocument()
+
+                        // remove duplicate entries
+                        XPath xpath = XPathFactory.newInstance().newXPath()
+                        NodeList res2 = (NodeList) xpath.evaluate("//dependency[artifactId = ./preceding-sibling::dependency/artifactId]", doc, XPathConstants.NODESET)
+                        for (int i = res2.getLength() - 1; i >= 0; i--) {
+                            Node n = res2.item(i)
+                            n.getParentNode().removeChild(n)
+                        }
+                    }
+                }
             }
         }
     }
 
     artifactoryPublish {
+        dependsOn(clean, jar)
         publications(publishing.publications.mavenJava)
-        dependsOn build
     }
 
     artifactory {
@@ -291,6 +307,7 @@ subprojects {
     }
 
     jar {
+        enabled = true
         from("../legal") {
             include "NOTICE"
             include "LICENSE"
@@ -600,7 +617,19 @@ rat {
         "osgi/README.md",
         "src/resources/ooxml-lite-report.*",
         // ignore svn conflict artifacts
-        "**/module-info.*"
+        "**/module-info.*",
+        // airslate fork files
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentRun.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentsBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/ISDTContentsRun.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTContentBlock.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTContentRun.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTPr.java",
+        "poi-ooxml/src/main/java/org/apache/poi/xwpf/usermodel/XWPFSDTRun.java",
+        "poi-ooxml/src/test/java/org/apache/poi/xwpf/usermodel/TestXWPFSDTBlock.java",
+        "poi-ooxml/src/test/java/org/apache/poi/xwpf/usermodel/TestXWPFSDTRun.java",
     ]
 
     /*

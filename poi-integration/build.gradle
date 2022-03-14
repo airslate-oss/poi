@@ -194,4 +194,3 @@ javadoc.onlyIf { false }
 javadocJar.onlyIf { false }
 
 sourcesJar.onlyIf { false }
-
