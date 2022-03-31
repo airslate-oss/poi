@@ -139,7 +139,7 @@ subprojects {
     apply plugin: 'de.thetaphi.forbiddenapis'
     apply plugin: 'com.github.spotbugs'
 
-    version = '5.2.3-SNAPSHOT'
+    version = '5.2.3-AIRSLATE'
     ext {
         bouncyCastleVersion = '1.70'
         commonsCodecVersion = '1.15'
@@ -261,6 +261,7 @@ subprojects {
     publishing {
         publications {
             mavenJava(MavenPublication) {
+                groupId 'org.apache.poi'
                 from components.java
 
                 pom {
@@ -296,8 +297,8 @@ subprojects {
         publish {
             repository {
                 repoKey = 'maven-thirdparty'
-                username = 'username'
-                password = 'password'
+                username = System.getenv('MVN_USER')
+                password = System.getenv('MVN_PASS')
             }
 
             defaults {
