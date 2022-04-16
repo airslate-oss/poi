@@ -10,13 +10,12 @@ import java.util.List;
 
 public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
 
-    // private final XWPFDocument document;
-    // private List<XWPFSDT> contentControls = new ArrayList<>();
     private IBody parent;
     private CTSdtContentBlock ctSdtContentBlock;
     private List<IBodyElement> bodyElements = new ArrayList<>();
     private List<XWPFParagraph> paragraphs = new ArrayList<>();
     private List<XWPFTable> tables = new ArrayList<>();
+    private List<XWPFSDTBlock> contentControls = new ArrayList<>();
 
     public XWPFSDTContentBlock(CTSdtContentBlock block, IBody part) {
         if (block == null) {
@@ -40,7 +39,7 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
             } else if (o instanceof CTSdtBlock) {
                 XWPFSDTBlock c = new XWPFSDTBlock(((CTSdtBlock) o), part);
                 bodyElements.add(c);
-//                contentControls.add(c);
+                contentControls.add(c);
             }
         }
         cursor.dispose();
@@ -60,6 +59,10 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
 
     public List<XWPFTable> getTables() {
         return Collections.unmodifiableList(tables);
+    }
+
+    public List<XWPFSDTBlock> getSdtBlocks() {
+        return Collections.unmodifiableList(contentControls);
     }
 
     @Override
@@ -149,11 +152,7 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
         return null;
     }
 
-    /**
-     * Appends a new paragraph to this document
-     *
-     * @return a new paragraph
-     */
+    @Override
     public XWPFParagraph createParagraph() {
         XWPFParagraph p = new XWPFParagraph(ctSdtContentBlock.addNewP(), parent);
         bodyElements.add(p);
@@ -161,16 +160,20 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
         return p;
     }
 
-    /**
-     * Create an empty table with one row and one column as default.
-     *
-     * @return a new table
-     */
+    @Override
     public XWPFTable createTable() {
         XWPFTable table = new XWPFTable(ctSdtContentBlock.addNewTbl(), parent);
         bodyElements.add(table);
         tables.add(table);
         return table;
+    }
+
+    @Override
+    public XWPFSDTBlock createSdt() {
+        XWPFSDTBlock sdt = new XWPFSDTBlock(ctSdtContentBlock.addNewSdt(), parent);
+        bodyElements.add(sdt);
+        contentControls.add(sdt);
+        return sdt;
     }
 
     @Override

@@ -39,9 +39,35 @@ public interface ISDTContentBlock {
     XWPFParagraph insertNewParagraph(XmlCursor cursor);
 
     /**
-     * @return Collection of paragraphs
+     * @return Collection of {@link XWPFTable}
      */
     List<XWPFTable> getTables();
+
+    /**
+     * @return Collection of {@link XWPFSDTBlock}
+     */
+    List<XWPFSDTBlock> getSdtBlocks();
+
+    /**
+     * Appends a new {@link XWPFParagraph} to SDT content
+     *
+     * @return a new {@link XWPFParagraph}
+     */
+    XWPFParagraph createParagraph();
+
+    /**
+     * Appends a new {@link XWPFTable} to SDT content
+     *
+     * @return a new {@link XWPFTable}
+     */
+    XWPFTable createTable();
+
+    /**
+     * Appends a new {@link XWPFSDTBlock}  to SDT content
+     *
+     * @return a new {@link XWPFSDTBlock}
+     */
+    XWPFSDTBlock createSdt();
 
     /**
      * get a table by its CTTbl-Object

@@ -2,15 +2,13 @@ package org.apache.poi.xwpf.usermodel;
 
 import org.apache.poi.xwpf.XWPFTestDataSamples;
 import org.apache.xmlbeans.XmlCursor;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STLock;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-
-import static org.apache.poi.POITestCase.assertContains;
-import org.junit.jupiter.api.Assertions;
 
 /**
  * Test class for manipulation of inline Content Controls.
@@ -67,6 +65,7 @@ public final class TestXWPFSDTRun {
 
         Assertions.assertEquals(1, sdt.getContent().getIRuns().size());
         Assertions.assertEquals(1, sdt.getContent().getRuns().size());
+        Assertions.assertEquals(0, sdt.getContent().getSDTRuns().size());
         Assertions.assertEquals("text in SDT", ((XWPFRun) sdt.getContent().getIRuns().get(0)).getText(0));
     }
 
@@ -79,7 +78,7 @@ public final class TestXWPFSDTRun {
      * @throws IOException
      */
     @Test
-    public void testInsertSDTRunBetweenRuns() throws IOException {
+    public void testInsertSDTRunBetweenRuns() {
         XmlCursor cur = null;
         XWPFDocument doc = new XWPFDocument();
         XWPFParagraph p = doc.createParagraph();
@@ -126,11 +125,12 @@ public final class TestXWPFSDTRun {
         cur.toFirstChild(); // select copied run
 
         Assertions.assertTrue(cur.getObject() instanceof CTR);
-        Assertions.assertEquals("second ",  new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getText(0));
-        Assertions.assertEquals("Times New Roman",  new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getFontFamily());
+        Assertions.assertEquals("second ", new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getText(0));
+        Assertions.assertEquals("Times New Roman", new XWPFRun((CTR) cur.getObject(), sdtRunBefore).getFontFamily());
 
         Assertions.assertEquals(5, p.getIRuns().size());
         Assertions.assertEquals(3, p.getRuns().size());
+        Assertions.assertEquals(2, p.getSDTRuns().size());
         Assertions.assertEquals(XWPFSDTRun.class, p.getIRuns().get(1).getClass());
         Assertions.assertEquals(XWPFSDTRun.class, p.getIRuns().get(3).getClass());
     }
@@ -169,5 +169,55 @@ public final class TestXWPFSDTRun {
 
         sdtRun.getContent().getRuns().get(0).setText("new-inline-sdt", 0);
         Assertions.assertEquals("new-inline-sdt", sdtRun.getContent().getRuns().get(0).getText(0));
+    }
+
+    @Test
+    public void testNestedSdtRun() {
+        XWPFDocument document = new XWPFDocument();
+        XWPFSDTContentRun sdtContent1 = document.createParagraph().createSdtRun().createSdtContent();
+        sdtContent1.createRun();
+        sdtContent1.createRun();
+
+        XWPFSDTContentRun sdtContent2 = sdtContent1.createSdtRun().createSdtContent();
+
+        XWPFSDTContentRun sdtContent3 = sdtContent2.createSdtRun().createSdtContent();
+        sdtContent3.createSdtRun().createSdtContent();
+        sdtContent3.createSdtRun().createSdtContent();
+        sdtContent3.createSdtRun().createSdtContent();
+
+        Assertions.assertEquals(1, document.getParagraphs().size());
+
+        XWPFSDTContentRun actual = document.getParagraphs().get(0)
+                .getSDTRuns()
+                .get(0)
+                .getContent();
+        Assertions.assertEquals(2, actual.getRuns().size());
+        Assertions.assertEquals(3, actual.getIRuns().size());
+        Assertions.assertEquals(1, actual.getSDTRuns().size());
+
+        actual = document.getParagraphs().get(0)
+                .getSDTRuns()
+                .get(0)
+                .getContent()
+                .getSDTRuns()
+                .get(0)
+                .getContent();
+        Assertions.assertEquals(0, actual.getRuns().size());
+        Assertions.assertEquals(1, actual.getIRuns().size());
+        Assertions.assertEquals(1, actual.getSDTRuns().size());
+
+        actual = document.getParagraphs().get(0)
+                .getSDTRuns()
+                .get(0)
+                .getContent()
+                .getSDTRuns()
+                .get(0)
+                .getContent()
+                .getSDTRuns()
+                .get(0)
+                .getContent();
+        Assertions.assertEquals(0, actual.getRuns().size());
+        Assertions.assertEquals(3, actual.getIRuns().size());
+        Assertions.assertEquals(3, actual.getSDTRuns().size());
     }
 }
