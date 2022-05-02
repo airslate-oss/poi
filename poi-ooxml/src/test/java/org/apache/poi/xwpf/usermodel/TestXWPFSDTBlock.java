@@ -2,17 +2,11 @@ package org.apache.poi.xwpf.usermodel;
 
 import org.apache.poi.xwpf.XWPFTestDataSamples;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.apache.poi.POITestCase.assertContains;
-import org.junit.jupiter.api.Assertions;
 
 /**
  * Test class for manipulation of block level Content Controls.
@@ -89,6 +83,7 @@ public final class TestXWPFSDTBlock {
 
         Assertions.assertEquals(2, sdtBlock.getContent().getParagraphs().size());
         Assertions.assertEquals(3, sdtBlock.getContent().getBodyElements().size());
+        Assertions.assertEquals(0, sdtBlock.getContent().getSdtBlocks().size());
         Assertions.assertSame(newP, sdtBlock.getContent().getParagraphs().get(0));
     }
 
@@ -131,6 +126,7 @@ public final class TestXWPFSDTBlock {
         Assertions.assertEquals("Some text1", sdtBlockContent.getParagraphs().get(0).getText());
         Assertions.assertEquals(1, sdtBlockContent.getParagraphs().size());
         Assertions.assertEquals(1, sdtBlockContent.getBodyElements().size());
+        Assertions.assertEquals(0, sdtBlockContent.getSdtBlocks().size());
     }
 
     @Test
@@ -146,6 +142,7 @@ public final class TestXWPFSDTBlock {
         Assertions.assertEquals("Deep in Tbl", sdtBlockContent.getTables().get(0).getText().trim());
         Assertions.assertEquals(1, sdtBlockContent.getTables().size());
         Assertions.assertEquals(1, sdtBlockContent.getBodyElements().size());
+        Assertions.assertEquals(0, sdtBlockContent.getSdtBlocks().size());
     }
 
     @Test
@@ -164,6 +161,7 @@ public final class TestXWPFSDTBlock {
 
         Assertions.assertEquals(2, sdtBlock.getContent().getTables().size());
         Assertions.assertEquals(3, sdtBlock.getContent().getBodyElements().size());
+        Assertions.assertEquals(0, sdtBlock.getContent().getSdtBlocks().size());
         Assertions.assertSame(newTbl, sdtBlock.getContent().getTables().get(1));
     }
 
@@ -206,5 +204,58 @@ public final class TestXWPFSDTBlock {
                         .getCell(0)
                         .getText()
         );
+    }
+
+    @Test
+    public void testNestedSdtBlock() {
+        XWPFDocument document = new XWPFDocument();
+        XWPFSDTContentBlock sdtContent1 = document.createSdt().createSdtContent();
+        sdtContent1.createParagraph();
+        sdtContent1.createTable();
+        sdtContent1.createTable();
+        sdtContent1.createTable();
+
+        XWPFSDTContentBlock sdtContent2 = sdtContent1.createSdt().createSdtContent();
+        XWPFSDTContentBlock sdtContent3 = sdtContent1.createSdt().createSdtContent();
+
+        sdtContent2.createSdt().createSdtContent();
+        sdtContent2.createParagraph();
+        sdtContent2.createParagraph();
+
+        sdtContent3.createTable();
+        sdtContent3.createTable();
+        sdtContent3.createTable();
+
+        Assertions.assertEquals(1, document.getBodyElements().size());
+        Assertions.assertEquals(0, document.getParagraphs().size());
+        Assertions.assertEquals(0, document.getTables().size());
+        Assertions.assertEquals(1, document.getSdtBlocks().size());
+
+        XWPFSDTContentBlock actual = document.getSdtBlocks().get(0)
+                .getContent();
+        Assertions.assertEquals(6, actual.getBodyElements().size());
+        Assertions.assertEquals(1, actual.getParagraphs().size());
+        Assertions.assertEquals(3, actual.getTables().size());
+        Assertions.assertEquals(2, actual.getSdtBlocks().size());
+
+        actual = document.getSdtBlocks().get(0)
+                .getContent()
+                .getSdtBlocks()
+                .get(0)
+                .getContent();
+        Assertions.assertEquals(3, actual.getBodyElements().size());
+        Assertions.assertEquals(2, actual.getParagraphs().size());
+        Assertions.assertEquals(0, actual.getTables().size());
+        Assertions.assertEquals(1, actual.getSdtBlocks().size());
+
+        actual = document.getSdtBlocks().get(0)
+                .getContent()
+                .getSdtBlocks()
+                .get(1)
+                .getContent();
+        Assertions.assertEquals(3, actual.getBodyElements().size());
+        Assertions.assertEquals(0, actual.getParagraphs().size());
+        Assertions.assertEquals(3, actual.getTables().size());
+        Assertions.assertEquals(0, actual.getSdtBlocks().size());
     }
 }

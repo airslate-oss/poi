@@ -14,6 +14,7 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
     private CTSdtContentRun ctContentRun;
     private List<XWPFRun> runs = new ArrayList<>();
     private List<IRunElement> iruns = new ArrayList<>();
+    private List<XWPFSDTRun> sdtRuns = new ArrayList<>();
 
     public XWPFSDTContentRun(CTSdtContentRun ctContentRun, IRunBody parent) {
         if (ctContentRun == null) {
@@ -31,6 +32,10 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
 
     public List<XWPFRun> getRuns() {
         return Collections.unmodifiableList(runs);
+    }
+
+    public List<XWPFSDTRun> getSDTRuns() {
+        return Collections.unmodifiableList(sdtRuns);
     }
 
     private void buildRunsInOrderFromXml(XmlObject object) {
@@ -62,6 +67,7 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
             if (o instanceof CTSdtRun) {
                 XWPFSDTRun cc = new XWPFSDTRun((CTSdtRun) o, parent);
                 iruns.add(cc);
+                sdtRuns.add(cc);
             }
             if (o instanceof CTRunTrackChange) {
                 for (CTR r : ((CTRunTrackChange) o).getRArray()) {
@@ -85,16 +91,20 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
         c.dispose();
     }
 
-    /**
-     * {@inheritDoc}
-     * @return
-     */
     @Override
     public XWPFRun createRun() {
         XWPFRun xwpfRun = new XWPFRun(ctContentRun.addNewR(), parent);
         runs.add(xwpfRun);
         iruns.add(xwpfRun);
         return xwpfRun;
+    }
+
+    @Override
+    public XWPFSDTRun createSdtRun() {
+        XWPFSDTRun sdtRun = new XWPFSDTRun(ctContentRun.addNewSdt(), parent);
+        sdtRuns.add(sdtRun);
+        iruns.add(sdtRun);
+        return sdtRun;
     }
 
     @Override
