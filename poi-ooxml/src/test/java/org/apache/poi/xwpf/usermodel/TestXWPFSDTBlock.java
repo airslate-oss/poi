@@ -146,6 +146,56 @@ public final class TestXWPFSDTBlock {
     }
 
     @Test
+    public void testInsertSdtIntoSdt() {
+        XWPFDocument document = new XWPFDocument();
+        XWPFSDTBlock dstSdtBlock = document.createSdt();
+        XWPFSDTContentBlock dstSdtBlockContent = dstSdtBlock.createSdtContent();
+        dstSdtBlockContent.createParagraph().createRun().setText("t1");
+        dstSdtBlockContent.createTable().getRow(0).getCell(0).setText("t2");
+        dstSdtBlockContent.createParagraph().createRun().setText("t3");
+        dstSdtBlockContent.createSdt().createSdtContent().createParagraph().createRun().setText("t4");
+
+        XWPFSDTBlock srcSdtBlock = document.createSdt();
+        XWPFSDTContentBlock srcSdtBlockContent = srcSdtBlock.createSdtContent();
+        srcSdtBlockContent.createTable().getRow(0).getCell(0).setText("t5");
+        srcSdtBlockContent.createParagraph().createRun().setText("t6");
+        srcSdtBlockContent.createSdt().createSdtContent().createParagraph().createRun().setText("t7");
+
+        dstSdtBlockContent.cloneExistingIBodyElement(srcSdtBlock);
+
+        Assertions.assertEquals(2, document.getBodyElements().size());
+        Assertions.assertEquals(2, document.getSdtBlocks().size());
+
+        XWPFSDTContentBlock sdtBlock1Content = document.getSdtBlocks().get(0).getContent();
+        Assertions.assertEquals(5, sdtBlock1Content.getBodyElements().size());
+        Assertions.assertEquals(2, sdtBlock1Content.getParagraphs().size());
+        Assertions.assertEquals(1, sdtBlock1Content.getTables().size());
+        Assertions.assertEquals(2, sdtBlock1Content.getSdtBlocks().size());
+        Assertions.assertEquals("t1", ((XWPFParagraph) sdtBlock1Content.getBodyElements().get(0)).getText());
+        Assertions.assertEquals("t2", ((XWPFTable) sdtBlock1Content.getBodyElements().get(1)).getRow(0).getCell(0).getText());
+        Assertions.assertEquals("t3", ((XWPFParagraph) sdtBlock1Content.getBodyElements().get(2)).getText());
+        Assertions.assertEquals("t4", ((XWPFSDTBlock) sdtBlock1Content.getBodyElements().get(3)).getContent().getText());
+
+        XWPFSDTContentBlock innerSdtBlockContent = ((XWPFSDTBlock) sdtBlock1Content.getBodyElements().get(4)).getContent();
+        Assertions.assertEquals(3, innerSdtBlockContent.getBodyElements().size());
+        Assertions.assertEquals(1, innerSdtBlockContent.getParagraphs().size());
+        Assertions.assertEquals(1, innerSdtBlockContent.getTables().size());
+        Assertions.assertEquals(1, innerSdtBlockContent.getSdtBlocks().size());
+        Assertions.assertEquals("t5", ((XWPFTable) innerSdtBlockContent.getBodyElements().get(0)).getRow(0).getCell(0).getText());
+        Assertions.assertEquals("t6", ((XWPFParagraph) innerSdtBlockContent.getBodyElements().get(1)).getText());
+        Assertions.assertEquals("t7", ((XWPFSDTBlock) innerSdtBlockContent.getBodyElements().get(2)).getContent().getText());
+
+        XWPFSDTContentBlock sdtBlock2Content = document.getSdtBlocks().get(1).getContent();
+        Assertions.assertEquals(3, sdtBlock2Content.getBodyElements().size());
+        Assertions.assertEquals(1, sdtBlock2Content.getParagraphs().size());
+        Assertions.assertEquals(1, sdtBlock2Content.getTables().size());
+        Assertions.assertEquals(1, sdtBlock2Content.getSdtBlocks().size());
+        Assertions.assertEquals("t5", ((XWPFTable) sdtBlock2Content.getBodyElements().get(0)).getRow(0).getCell(0).getText());
+        Assertions.assertEquals("t6", ((XWPFParagraph) sdtBlock2Content.getBodyElements().get(1)).getText());
+        Assertions.assertEquals("t7", ((XWPFSDTBlock) sdtBlock2Content.getBodyElements().get(2)).getContent().getText());
+    }
+
+    @Test
     public void testInsertNewTblToSdtBlockContent() throws IOException {
         XWPFDocument doc = XWPFTestDataSamples.openSampleDocument("blockAndInlineSdtTags.docx");
         XWPFSDTBlock sdtBlock = (XWPFSDTBlock) doc.getBodyElements().get(2);

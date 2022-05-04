@@ -116,6 +116,12 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
             runs.add(r);
             iruns.add(r);
             return r;
+        } else if (elem instanceof XWPFSDTRun) {
+            CTSdtRun ctSdtRun = ctContentRun.addNewSdt();
+            ctSdtRun.set(((XWPFSDTRun) elem).getCtSdtRun());
+            XWPFSDTRun sdtRun = new XWPFSDTRun(ctSdtRun, parent);
+            iruns.add(sdtRun);
+            return sdtRun;
         }
         return null;
     }

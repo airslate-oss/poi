@@ -249,6 +249,13 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
             tables.add(tbl);
             bodyElements.add(tbl);
             return tbl;
+        } else if (elem instanceof XWPFSDTBlock) {
+            CTSdtBlock ctSdtBlock = ctSdtContentBlock.addNewSdt();
+            ctSdtBlock.set(((XWPFSDTBlock) elem).getCtSdtBlock());
+            XWPFSDTBlock sdtBlock = new XWPFSDTBlock(ctSdtBlock, parent);
+            contentControls.add(sdtBlock);
+            bodyElements.add(sdtBlock);
+            return sdtBlock;
         }
         return null;
     }
