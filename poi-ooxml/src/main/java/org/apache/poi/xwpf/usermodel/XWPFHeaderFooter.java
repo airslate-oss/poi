@@ -479,7 +479,7 @@ public abstract class XWPFHeaderFooter extends POIXMLDocumentPart implements IBo
             }
             while (cursor.toPrevSibling()) {
                 o = cursor.getObject();
-                if (o instanceof CTP || o instanceof CTTbl)
+                if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock)
                     i++;
             }
             bodyElements.add(i, newP);
@@ -524,7 +524,7 @@ public abstract class XWPFHeaderFooter extends POIXMLDocumentPart implements IBo
             try {
                 while (cursor2.toPrevSibling()) {
                     o = cursor2.getObject();
-                    if (o instanceof CTP || o instanceof CTTbl) {
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
                         i++;
                     }
                 }
