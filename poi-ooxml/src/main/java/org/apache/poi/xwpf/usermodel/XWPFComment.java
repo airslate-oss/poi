@@ -179,7 +179,7 @@ public class XWPFComment implements IBody {
             p2.dispose();
             while (cursor.toPrevSibling()) {
                 o = cursor.getObject();
-                if (o instanceof CTP || o instanceof CTTbl)
+                if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock)
                     i++;
             }
             bodyElements.add(i, newP);
@@ -224,7 +224,7 @@ public class XWPFComment implements IBody {
             XmlCursor cursor2 = t.newCursor();
             while (cursor2.toPrevSibling()) {
                 o = cursor2.getObject();
-                if (o instanceof CTP || o instanceof CTTbl) {
+                if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
                     i++;
                 }
             }

@@ -137,7 +137,7 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
                 cursor.toCursor(newParaPos);
                 while (cursor.toPrevSibling()) {
                     o = cursor.getObject();
-                    if (o instanceof CTP || o instanceof CTTbl) {
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
                         i++;
                     }
                 }
@@ -211,7 +211,7 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
                 cursor.toCursor(tableCursor);
                 while (cursor.toPrevSibling()) {
                     o = cursor.getObject();
-                    if (o instanceof CTP || o instanceof CTTbl) {
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
                         i++;
                     }
                 }

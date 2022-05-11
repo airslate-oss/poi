@@ -334,7 +334,7 @@ public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParag
             cursor = t.newCursor();
             while (cursor.toPrevSibling()) {
                 o = cursor.getObject();
-                if (o instanceof CTP || o instanceof CTTbl)
+                if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock)
                     i++;
             }
             bodyElements.add(i, newT);
@@ -383,7 +383,7 @@ public abstract class XWPFAbstractFootnoteEndnote  implements Iterable<XWPFParag
             }
             while (cursor.toPrevSibling()) {
                 o = cursor.getObject();
-                if (o instanceof CTP || o instanceof CTTbl)
+                if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock)
                     i++;
             }
             bodyElements.add(i, newP);

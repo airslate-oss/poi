@@ -841,7 +841,7 @@ public class XWPFDocument extends POIXMLDocument implements Document, IBody {
                 cursor.toCursor(tableCursor);
                 while (cursor.toPrevSibling()) {
                     o = cursor.getObject();
-                    if (o instanceof CTP || o instanceof CTTbl) {
+                    if (o instanceof CTP || o instanceof CTTbl || o instanceof CTSdtBlock) {
                         i++;
                     }
                 }
