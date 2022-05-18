@@ -135,6 +135,47 @@ public final class TestXWPFSDTRun {
         Assertions.assertEquals(XWPFSDTRun.class, p.getIRuns().get(3).getClass());
     }
 
+    @Test
+    public void testInsertSDTIntoSdt() {
+        XWPFDocument document = new XWPFDocument();
+        XWPFParagraph paragraph = document.createParagraph();
+
+        XWPFSDTRun dstSdtRun = paragraph.createSdtRun();
+        XWPFSDTContentRun dstSdtContent = dstSdtRun.createSdtContent();
+        dstSdtContent.createRun().setText("t1");
+        dstSdtContent.createRun().setText("t2");
+
+        XWPFSDTRun srcSdtRun = paragraph.createSdtRun();
+        XWPFSDTPr srcSdtPr = srcSdtRun.createSdtPr();
+        srcSdtPr.setTag("tag");
+        XWPFSDTContentRun srcSdtContent = srcSdtRun.createSdtContent();
+        srcSdtContent.createRun().setText("t3");
+        srcSdtContent.createRun().setText("t4");
+
+        dstSdtContent.cloneExistingIRunElement(srcSdtRun);
+
+        Assertions.assertEquals(1, document.getParagraphs().size());
+        paragraph = document.getParagraphs().get(0);
+
+        Assertions.assertEquals(2, paragraph.getIRuns().size());
+        XWPFSDTRun sdtRun1 = (XWPFSDTRun) paragraph.getIRuns().get(0);
+        Assertions.assertEquals(3, sdtRun1.getContent().getIRuns().size());
+        Assertions.assertEquals("t1", ((XWPFRun) sdtRun1.getContent().getIRuns().get(0)).text());
+        Assertions.assertEquals("t2", ((XWPFRun) sdtRun1.getContent().getIRuns().get(1)).text());
+
+        XWPFSDTRun innerSdtRun = (XWPFSDTRun) sdtRun1.getContent().getIRuns().get(2);
+        Assertions.assertEquals("tag", innerSdtRun.getSdtPr().getTag());
+        Assertions.assertEquals(2, innerSdtRun.getContent().getIRuns().size());
+        Assertions.assertEquals("t3", ((XWPFRun) innerSdtRun.getContent().getIRuns().get(0)).text());
+        Assertions.assertEquals("t4", ((XWPFRun) innerSdtRun.getContent().getIRuns().get(1)).text());
+
+        XWPFSDTRun sdtRun2 = (XWPFSDTRun) paragraph.getIRuns().get(1);
+        Assertions.assertEquals("tag", sdtRun2.getSdtPr().getTag());
+        Assertions.assertEquals(2, sdtRun2.getContent().getIRuns().size());
+        Assertions.assertEquals("t3", ((XWPFRun) sdtRun2.getContent().getIRuns().get(0)).text());
+        Assertions.assertEquals("t4", ((XWPFRun) sdtRun2.getContent().getIRuns().get(1)).text());
+    }
+
     /**
      * Verify that existing Content Control in document is correctly
      * unmarshalled & we can proceed with modifying its content
