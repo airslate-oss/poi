@@ -168,6 +168,11 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
         return table;
     }
 
+    public void setSDTBlock(int pos, XWPFSDTBlock sdt) {
+        contentControls.set(pos, sdt);
+        ctSdtContentBlock.setSdtArray(pos, sdt.getCtSdtBlock());
+    }
+
     @Override
     public XWPFSDTBlock createSdt() {
         XWPFSDTBlock sdt = new XWPFSDTBlock(ctSdtContentBlock.addNewSdt(), parent);

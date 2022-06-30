@@ -99,6 +99,11 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
         return xwpfRun;
     }
 
+    public void setSDTRun(int pos, XWPFSDTRun sdt) {
+        sdtRuns.set(pos, sdt);
+        ctContentRun.setSdtArray(pos, sdt.getCtSdtRun());
+    }
+
     @Override
     public XWPFSDTRun createSdtRun() {
         XWPFSDTRun sdtRun = new XWPFSDTRun(ctContentRun.addNewSdt(), parent);
