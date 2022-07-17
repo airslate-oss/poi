@@ -63,6 +63,11 @@ public interface ISDTContentBlock {
     XWPFTable createTable();
 
     /**
+     * Set a new {@link XWPFSDTBlock} to SDT content
+     */
+    void setSDTBlock(int pos, XWPFSDTBlock sdt);
+
+    /**
      * Appends a new {@link XWPFSDTBlock}  to SDT content
      *
      * @return a new {@link XWPFSDTBlock}

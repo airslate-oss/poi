@@ -26,6 +26,11 @@ public interface ISDTContentRun {
     XWPFRun createRun();
 
     /**
+     * Set a {@link XWPFRun} to SDT content
+     */
+    void setSDTRun(int pos, XWPFSDTRun sdt);
+
+    /**
      * Appends a new {@link XWPFSDTRun} to SDT content
      *
      * @return a new {@link XWPFSDTRun}
