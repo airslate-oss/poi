@@ -1945,7 +1945,7 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContentsBlock,
                 cursor.toCursor(sdtCursor);
                 while (cursor.toPrevSibling()) {
                     o = cursor.getObject();
-                    if (o instanceof CTR || o instanceof CTSdtRun) {
+                    if (o instanceof CTR || o instanceof CTSdtRun || o instanceof CTHyperlink || o instanceof CTSimpleField) {
                         i++;
                     }
                 }
