@@ -168,6 +168,11 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
         return table;
     }
 
+    public void setSDTBlock(int pos, XWPFSDTBlock sdt) {
+        contentControls.set(pos, sdt);
+        ctSdtContentBlock.setSdtArray(pos, sdt.getCtSdtBlock());
+    }
+
     @Override
     public XWPFSDTBlock createSdt() {
         XWPFSDTBlock sdt = new XWPFSDTBlock(ctSdtContentBlock.addNewSdt(), parent);
@@ -260,9 +265,98 @@ public class XWPFSDTContentBlock implements ISDTContent, ISDTContentBlock {
         return null;
     }
 
+
+    /**
+     * Finds that for example the 2nd entry in the body list is the 1st paragraph
+     */
+    private int getBodyElementSpecificPos(int pos, List<? extends IBodyElement> list) {
+        // If there's nothing to find, skip it
+        if (list.isEmpty()) {
+            return -1;
+        }
+
+        if (pos >= 0 && pos < bodyElements.size()) {
+            // Ensure the type is correct
+            IBodyElement needle = bodyElements.get(pos);
+            if (needle.getElementType() != list.get(0).getElementType()) {
+                // Wrong type
+                return -1;
+            }
+
+            // Work back until we find it
+            int startPos = Math.min(pos, list.size() - 1);
+            for (int i = startPos; i >= 0; i--) {
+                if (list.get(i) == needle) {
+                    return i;
+                }
+            }
+        }
+
+        // Couldn't be found
+        return -1;
+    }
+
+    /**
+     * get with the position of a table in the bodyelement array list
+     * the position of this SDT in the contentControls array list
+     *
+     * @param pos position of the SDT in the bodyelement array list
+     * @return if there is a table at the position in the bodyelement array list,
+     * else it will return null.
+     */
+    public int getSDTPos(int pos) {
+        return getBodyElementSpecificPos(pos, contentControls);
+    }
+
+    /**
+     * Look up the paragraph at the specified position in the body elements list
+     * and return this paragraphs position in the paragraphs list
+     *
+     * @param pos The position of the relevant paragraph in the body elements
+     *            list
+     * @return the position of the paragraph in the paragraphs list, if there is
+     * a paragraph at the position in the bodyelements list. Else it
+     * will return -1
+     */
+    public int getParagraphPos(int pos) {
+        return getBodyElementSpecificPos(pos, paragraphs);
+    }
+
+    /**
+     * get with the position of a table in the bodyelement array list
+     * the position of this table in the table array list
+     *
+     * @param pos position of the table in the bodyelement array list
+     * @return if there is a table at the position in the bodyelement array list,
+     * else it will return null.
+     */
+    public int getTablePos(int pos) {
+        return getBodyElementSpecificPos(pos, tables);
+    }
+
     @Override
     public boolean removeIBodyElement(int pos) {
-        throw new UnsupportedOperationException();
+        if (pos >= 0 && pos < bodyElements.size()) {
+            BodyElementType type = bodyElements.get(pos).getElementType();
+            if (type == BodyElementType.TABLE) {
+                int tablePos = getTablePos(pos);
+                tables.remove(tablePos);
+                ctSdtContentBlock.removeTbl(tablePos);
+            }
+            if (type == BodyElementType.PARAGRAPH) {
+                int paraPos = getParagraphPos(pos);
+                paragraphs.remove(paraPos);
+                ctSdtContentBlock.removeP(paraPos);
+            }
+            if (type == BodyElementType.CONTENTCONTROL) {
+                int sdtPos = getSDTPos(pos);
+                contentControls.remove(sdtPos);
+                ctSdtContentBlock.removeSdt(sdtPos);
+            }
+            bodyElements.remove(pos);
+            return true;
+        }
+        return false;
     }
 
     @Override

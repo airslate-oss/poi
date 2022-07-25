@@ -99,6 +99,11 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
         return xwpfRun;
     }
 
+    public void setSDTRun(int pos, XWPFSDTRun sdt) {
+        sdtRuns.set(pos, sdt);
+        ctContentRun.setSdtArray(pos, sdt.getCtSdtRun());
+    }
+
     @Override
     public XWPFSDTRun createSdtRun() {
         XWPFSDTRun sdtRun = new XWPFSDTRun(ctContentRun.addNewSdt(), parent);
@@ -127,13 +132,110 @@ public class XWPFSDTContentRun implements ISDTContent, ISDTContentRun {
     }
 
     /**
-     * Implementation may be based on {@link XWPFParagraph#removeRun(int)}
-     * @param pos
-     * @return
+     * Is there only one ctHyperlink in all runs
+     *
+     * @param run hyperlink run
      */
-    @Override
-    public boolean removeIRunElement(int pos) {
-        throw new UnsupportedOperationException();
+    private boolean isTheOnlyCTHyperlinkInRuns(XWPFHyperlinkRun run) {
+        CTHyperlink ctHyperlink = run.getCTHyperlink();
+        long count = runs.stream().filter(r -> (r instanceof XWPFHyperlinkRun
+                        && ctHyperlink == ((XWPFHyperlinkRun) r).getCTHyperlink()))
+                .count();
+        return count <= 1;
+    }
+
+    /**
+     * Is there only one ctField in all runs
+     *
+     * @param run field run
+     */
+    private boolean isTheOnlyCTFieldInRuns(XWPFFieldRun run) {
+        CTSimpleField ctField = run.getCTField();
+        long count = runs.stream().filter(r -> (r instanceof XWPFFieldRun
+                && ctField == ((XWPFFieldRun) r).getCTField())).count();
+        return count <= 1;
+    }
+
+    /**
+     * removes a Run at the position pos in the paragraph
+     *
+     * @param pos
+     * @return true if the run was removed
+     */
+    public boolean removeRun(int pos) {
+        if (pos >= 0 && pos < runs.size()) {
+            XWPFRun run = runs.get(pos);
+            // CTP -> CTHyperlink -> R array
+            if (run instanceof XWPFHyperlinkRun
+                    && isTheOnlyCTHyperlinkInRuns((XWPFHyperlinkRun) run)) {
+                XmlCursor c = ((XWPFHyperlinkRun) run).getCTHyperlink()
+                        .newCursor();
+                c.removeXml();
+                c.dispose();
+                runs.remove(pos);
+                iruns.remove(run);
+                return true;
+            }
+            // CTP -> CTField -> R array
+            if (run instanceof XWPFFieldRun
+                    && isTheOnlyCTFieldInRuns((XWPFFieldRun) run)) {
+                XmlCursor c = ((XWPFFieldRun) run).getCTField().newCursor();
+                c.removeXml();
+                c.dispose();
+                runs.remove(pos);
+                iruns.remove(run);
+                return true;
+            }
+            XmlCursor c = run.getCTR().newCursor();
+            c.removeXml();
+            c.dispose();
+            runs.remove(pos);
+            iruns.remove(run);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Remove Sdt Run by its position in iruns collection
+     *
+     * @param irunPos
+     * @return true if element was removed
+     */
+    public boolean removeSdtRun(int irunPos) {
+        if (irunPos >= 0 && irunPos < iruns.size()) {
+            IRunElement sdtRun = iruns.get(irunPos);
+
+            if (sdtRun instanceof XWPFSDTRun) {
+                XmlCursor c = ((XWPFSDTRun) sdtRun).getCtSdtRun().newCursor();
+                c.removeXml();
+                c.dispose();
+                sdtRuns.remove(sdtRun);
+                iruns.remove(sdtRun);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes elements {@link XWPFSDTRun}, {@link XWPFRun} from iruns collection
+     *
+     * @param irunPos
+     * @return true if element was removed
+     */
+    public boolean removeIRunElement(int irunPos) {
+        if (irunPos >= 0 && irunPos < iruns.size()) {
+            IRunElement iRunElement = iruns.get(irunPos);
+
+            if (iRunElement instanceof XWPFSDTRun) {
+                return removeSdtRun(irunPos);
+            }
+            if (iRunElement instanceof XWPFRun) {
+                return removeRun(runs.indexOf(iRunElement));
+            }
+        }
+        return false;
     }
 
     @Override
