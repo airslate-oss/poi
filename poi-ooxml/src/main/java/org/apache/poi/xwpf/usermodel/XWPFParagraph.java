@@ -146,7 +146,7 @@ public class XWPFParagraph implements IBodyElement, IRunBody, Paragraph {
                 }
                 if (o instanceof CTRunTrackChange) {
                     for (CTR r : ((CTRunTrackChange) o).getRArray()) {
-                        XWPFRun cr = new XWPFRun(r, this);
+                        XWPFRun cr = new XWPFTrackChangeRun((CTRunTrackChange) o, r, this);
                         runs.add(cr);
                         iruns.add(cr);
                     }

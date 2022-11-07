@@ -17,12 +17,6 @@
 
 package org.apache.poi.xwpf.usermodel;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
@@ -34,21 +28,9 @@ import org.openxmlformats.schemas.drawingml.x2006.picture.CTPicture;
 import org.openxmlformats.schemas.drawingml.x2006.picture.PicDocument;
 import org.openxmlformats.schemas.drawingml.x2006.picture.impl.PicDocumentImpl;
 import org.openxmlformats.schemas.officeDocument.x2006.sharedTypes.STOnOff1;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBorder;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTInd;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTJc;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTOnOff;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPBdr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSpacing;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTextAlignment;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STLineSpacingRule;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTextAlignment;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for XWPF Paragraphs
@@ -71,6 +53,27 @@ public final class TestXWPFParagraph {
 
             assertEquals(5, p.getCTP().sizeOfRArray());
             assertEquals("First header column!\tMid header\tRight header!", p.getText());
+        }
+    }
+
+    @Test
+    void testUnAcceptedChanges() throws IOException {
+        try (XWPFDocument xml = XWPFTestDataSamples.openSampleDocument("UnAcceptedChangesTest.docx")) {
+            List<XWPFParagraph> paragraphs = xml.getParagraphs();
+            XWPFRun delRun = paragraphs.get(0).getRuns().get(3);
+            XWPFRun insRun = paragraphs.get(0).getRuns().get(4);
+
+            assertTrue(delRun instanceof XWPFTrackChangeRun);
+            assertTrue(insRun instanceof XWPFTrackChangeRun);
+            assertTrue(paragraphs.get(0).getRuns().get(1) instanceof XWPFTrackChangeRun);
+
+            assertEquals("2022-10-26T13:13:55Z", ((XWPFTrackChangeRun) delRun).getDate().toString());
+            assertEquals("Pavlo Vavilov", ((XWPFTrackChangeRun) delRun).getAuthor());
+
+            assertTrue(((XWPFTrackChangeRun) delRun).isDel());
+            assertTrue(((XWPFTrackChangeRun) insRun).isIns());
+            assertFalse(((XWPFTrackChangeRun) delRun).isIns());
+            assertFalse(((XWPFTrackChangeRun) insRun).isDel());
         }
     }
 
