@@ -529,4 +529,8 @@ public class XWPFSDTContentBlock implements ISDTContent, IBody {
     public String toString() {
         return getText();
     }
+
+    public IBodyElement getParent() {
+        return part;
+    }
 }

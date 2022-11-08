@@ -476,4 +476,8 @@ public class XWPFSDTContentRun implements ISDTContent, IRunBody {
         }
         return null;
     }
+
+    public IRunElement getParent() {
+        return parent;
+    }
 }
