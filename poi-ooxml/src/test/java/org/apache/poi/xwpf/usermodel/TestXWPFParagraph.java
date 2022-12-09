@@ -31,6 +31,7 @@ import org.openxmlformats.schemas.officeDocument.x2006.sharedTypes.STOnOff1;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for XWPF Paragraphs
@@ -74,6 +75,44 @@ public final class TestXWPFParagraph {
             assertTrue(((XWPFTrackChangeRun) insRun).isIns());
             assertFalse(((XWPFTrackChangeRun) delRun).isIns());
             assertFalse(((XWPFTrackChangeRun) insRun).isDel());
+        }
+    }
+
+    @Test
+    void testIsInsCTP() throws IOException {
+        try (XWPFDocument xml = XWPFTestDataSamples.openSampleDocument("UnAcceptedChangesTest.docx")) {
+            List<XWPFParagraph> paragraphs = xml.getParagraphs();
+            boolean insCTP = paragraphs.get(5).isInsCTP();
+            assertTrue(insCTP);
+        }
+    }
+
+    @Test
+    void testIsInsParagraph() throws IOException {
+        try (XWPFDocument xml = XWPFTestDataSamples.openSampleDocument("UnAcceptedChangesTest.docx")) {
+            List<XWPFParagraph> paragraphs = xml.getParagraphs();
+            boolean insCTP = paragraphs.get(5).isInsParagraph();
+            assertFalse(insCTP);
+            boolean insCTP2 = paragraphs.get(6).isInsParagraph();
+            assertTrue(insCTP2);
+        }
+    }
+
+    @Test
+    void testIsDelCTP() throws IOException {
+        try (XWPFDocument xml = XWPFTestDataSamples.openSampleDocument("UnAcceptedChangesTest.docx")) {
+            List<XWPFParagraph> paragraphs = xml.getParagraphs();
+            boolean delCTP = paragraphs.get(3).isDelCTP();
+            assertTrue(delCTP);
+        }
+    }
+
+    @Test
+    void testIsDelParagraph() throws IOException {
+        try (XWPFDocument xml = XWPFTestDataSamples.openSampleDocument("UnAcceptedChangesTest.docx")) {
+            List<XWPFParagraph> paragraphs = xml.getParagraphs();
+            boolean delCTP = paragraphs.get(3).isDelParagraph();
+            assertTrue(delCTP);
         }
     }
 

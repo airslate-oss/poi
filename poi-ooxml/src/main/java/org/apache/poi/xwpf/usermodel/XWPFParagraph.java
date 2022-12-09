@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.ooxml.util.POIXMLUnits;
@@ -1986,5 +1987,37 @@ public class XWPFParagraph implements IBodyElement, IRunBody, Paragraph {
             }
         }
         return false;
+    }
+
+    public boolean isInsCTP() {
+        CTP ctp = getCTP();
+        return (ctp.getPPr() != null && ctp.getPPr().getRPr() != null && ctp.getPPr().getRPr().getIns() != null);
+    }
+
+    public boolean isInsParagraph() {
+        if (!isInsCTP()) {
+            return false;
+        }
+        List<XWPFRun> runs = getRuns().stream()
+                .filter(run -> run instanceof XWPFTrackChangeRun)
+                .collect(Collectors.toList());
+
+        return (runs.size() == getRuns().size());
+    }
+
+    public boolean isDelCTP() {
+        CTP ctp = getCTP();
+        return (ctp.getPPr() != null && ctp.getPPr().getRPr() != null && ctp.getPPr().getRPr().getDel() != null);
+    }
+
+    public boolean isDelParagraph() {
+        if (!isDelCTP()) {
+            return false;
+        }
+        List<XWPFRun> runs = getRuns().stream()
+                .filter(run -> run instanceof XWPFTrackChangeRun)
+                .collect(Collectors.toList());
+
+        return (runs.size() == getRuns().size());
     }
 }
