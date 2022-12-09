@@ -12,30 +12,30 @@ public class XWPFTrackChangeRun extends XWPFRun {
     }
 
     public CTRunTrackChange getTrackChange() {
-        return this.trackChange;
+        return trackChange;
     }
 
     public String getAuthor() {
-        return this.trackChange.getAuthor();
+        return trackChange.getAuthor();
     }
 
     public void setAuthor(String author) {
-        this.trackChange.setAuthor(author);
+        trackChange.setAuthor(author);
     }
 
     public java.util.Calendar getDate() {
-        return this.trackChange.getDate();
+        return trackChange.getDate();
     }
 
     public void setDate(java.util.Calendar date) {
-        this.trackChange.setDate(date);
+        trackChange.setDate(date);
     }
 
     public boolean isDel() {
-        return this.trackChange.getDomNode().getLocalName().equals("del");
+        return trackChange.getDomNode().getLocalName().equals("del");
     }
 
     public boolean isIns() {
-        return this.trackChange.getDomNode().getLocalName().equals("ins");
+        return trackChange.getDomNode().getLocalName().equals("ins");
     }
 }
