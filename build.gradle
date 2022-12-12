@@ -141,7 +141,7 @@ subprojects {
     apply plugin: 'de.thetaphi.forbiddenapis'
     apply plugin: 'com.github.spotbugs'
 
-    version = '5.2.3-AIRSLATE-26.2'
+    version = '5.2.3-AIRSLATE-27.1'
     ext {
         bouncyCastleVersion = '1.70'
         commonsCodecVersion = '1.15'
