@@ -541,13 +541,19 @@ public class XWPFTableCell implements IBody, ICell {
         } else if (e instanceof XWPFTable) {
             XWPFTable eTable = (XWPFTable) e;
             for (XWPFTableRow row : eTable.getRows()) {
-                for (XWPFTableCell cell : row.getTableCells()) {
+                List<XWPFTableCell> tableCells = row.getTableCells();
+                for (int i = 0; i < tableCells.size(); i++) {
+                    XWPFTableCell cell = tableCells.get(i);
                     List<IBodyElement> localBodyElements = cell.getBodyElements();
-                    for (int i = 0; i < localBodyElements.size(); i++) {
-                        boolean localIsLast = (i == localBodyElements.size() - 1);
-                        appendBodyElementText(text, localBodyElements.get(i), localIsLast);
+                    for (int j = 0; j < localBodyElements.size(); j++) {
+                        boolean localIsLast = (j == localBodyElements.size() - 1);
+                        appendBodyElementText(text, localBodyElements.get(j), localIsLast);
+                    }
+                    if (i < tableCells.size() - 1) {
+                        text.append("\t");
                     }
                 }
+                text.append('\n');
             }
 
             if (!isLast) {

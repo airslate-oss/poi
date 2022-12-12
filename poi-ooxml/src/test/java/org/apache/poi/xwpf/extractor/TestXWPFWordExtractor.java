@@ -27,10 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.extractor.POITextExtractor;
+import org.apache.poi.hwpf.extractor.Word6Extractor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.util.StringUtil;
 import org.apache.poi.xwpf.XWPFTestDataSamples;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -469,6 +473,43 @@ class TestXWPFWordExtractor {
                     "line\n" +
                     "\n" +
                     "Content control that is the entire paragraph\n";
+
+            XWPFWordExtractor extractedDoc = new XWPFWordExtractor(doc);
+
+            String actual = extractedDoc.getText();
+
+            extractedDoc.close();
+            assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    void testExtractorAddBreaksForNestedTable() throws Exception {
+        try (XWPFDocument doc = XWPFTestDataSamples.openSampleDocument("NestedTables.docx")) {
+            String expected = "Table 1\n" +
+                    "{{table(a)}}\t\n" +
+                    "{{h}}Name\t\n" +
+                    "{{name}}\t{{table(b)}}\t\n" +
+                    "{{h}}Product\tFillableField\n" +
+                    "{{Product}}\t{{t:t;r:y;l:\"text_field_1\";}} \n" +
+                    "{{endtable}}\t\n" +
+                    "\n" +
+                    "\n" +
+                    "{{endtable}}\t\n" +
+                    "\n" +
+                    "\n" +
+                    "\n" +
+                    "Table 2\n" +
+                    "{{table(t1)}}\t\n" +
+                    "{{table(t2)}}\n" +
+                    "{{name}}\n" +
+                    "{{endtable}}\n" +
+                    "\n" +
+                    "\t{{name}}\n" +
+                    "\t\n" +
+                    "{{endtable}}\t\n" +
+                    "\n" +
+                    "\n";
 
             XWPFWordExtractor extractedDoc = new XWPFWordExtractor(doc);
 
