@@ -3008,6 +3008,17 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet, OoxmlSheetEx
         copyRows(srcRows, destStartRow, cellCopyPolicy);
     }
 
+    public void shiftRows(int startRow, int endRow, int n, boolean copyRowHeight, boolean resetOriginalRowHeight, boolean preserveFormulas) {
+        if (!preserveFormulas) {
+            shiftRows(startRow, endRow, n, copyRowHeight, resetOriginalRowHeight);
+        } else {
+            this.removeOverwritten(startRow, endRow, n);
+            this.shiftCommentsAndRows(startRow, endRow, n);
+            XSSFRowShifter rowShifter = new XSSFRowShifter(this);
+            rowShifter.shiftMergedRegions(startRow, endRow, n);
+        }
+    }
+
     /**
      * Shifts rows between startRow and endRow n number of rows.
      * If you use a negative number, it will shift rows up.
